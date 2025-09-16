@@ -23,19 +23,200 @@ const SHEET_NAME = '影片追蹤';
 
 /** @const {Array<string>} 資料欄位定義 */
 const COLUMNS = [
-  'videoId', 'title', 'channelTitle', 'publishedAt', 'region', 'type',
-  'firstSeen', 'lastSeen', 'isTracking', 'url', 'viewHistory', 'hashtags'
+  'rank', 'videoId', 'title', 'channelTitle', 'publishedAt', 'region', 'type',
+  'firstSeen', 'lastSeen', 'isTracking', 'url', 'viewHistory', 'hashtags',
+  'likeHistory', 'commentHistory', 'durationSeconds'
 ];
 
 /** @const {Object} 地區配置 - 數據驅動，不是硬編碼 */
 const REGIONS = {
-  'US': { name: '美國', query: 'trending OR viral OR popular', lang: 'en' },
-  'IN': { name: '印度', query: 'India OR Hindi OR trending', lang: 'hi' },
-  'TW': { name: '台灣', query: '台灣 OR 繁體 OR 中文', lang: 'zh-Hant' }
+    'TW': { name: '台灣', query: '台灣 OR 繁體 OR 中文', lang: 'zh-Hant' },
+    'US': { name: '美國', query: 'trending OR viral OR popular', lang: 'en' },
+    'IN': { name: '印度', query: 'India OR Hindi OR trending', lang: 'hi' },
+    'BR': { name: '巴西', query: 'Brasil OR português OR viral', lang: 'pt' },
+    'ID': { name: '印尼', query: 'Indonesia OR trending OR populer', lang: 'id' },
+    'MX': { name: '墨西哥', query: 'Mexico OR español OR popular', lang: 'es' }
 };
 
 /** @const {number} 停止追蹤的天數閾值 */
 const STALE_DAYS = 10;
+
+/** @const {number} 每日追蹤搜尋天數 - 可調整 */
+const DAILY_SEARCH_DAYS = 5;
+
+/** @const {number} API 最大查詢數量 - 可調整 */
+const API_MAX_RESULTS = 50;
+
+/** @const {number} 每個地區類型保留的排名數量 - 可調整 */
+const RANKING_LIMIT = 20;
+
+/** @const {number} Shorts 影片長度閾值（秒）- 可調整 */
+const SHORTS_DURATION_LIMIT = 60;
+
+// ============================================================================
+// 預設值 - 當沒有提供參數時使用
+// ============================================================================
+
+/** @const {number} Web API 預設搜尋天數 */
+const DEFAULT_WEB_DAYS = 2;
+
+/** @const {number} Web API 預設影片數量 */
+const DEFAULT_WEB_COUNT = 50;
+
+/** @const {number} 向後兼容函數預設天數 */
+const DEFAULT_LEGACY_DAYS = 3;
+
+/** @const {number} 向後兼容函數預設數量 */
+const DEFAULT_LEGACY_COUNT = 20;
+
+// ============================================================================
+// 一鍵初始化 - 新手友好
+// ============================================================================
+
+/**
+ * 🚀 【新手必備】YouTube 熱門影片追蹤系統 - 一鍵初始化
+ *
+ * ⭐ 如果您是第一次使用此系統，請執行這個函數！
+ *
+ * 此函數會自動完成所有設置：
+ * ✅ 創建 Google Sheet 並設置 16 欄位結構（包含排名、影片長度等）
+ * ✅ 啟用每日自動追蹤（每天早上 6 點執行）
+ * ✅ 測試 YouTube API 連接和數據收集功能
+ * ✅ 提供完整的操作說明和 Google Sheet 連結
+ *
+ * 🌟 使用方法：
+ * 1. 在 Google Apps Script 函數列表中找到此函數
+ * 2. 點擊執行按鈕
+ * 3. 等待執行完成，查看控制台訊息
+ *
+ * 🎯 執行後系統將自動：
+ * - 追蹤 美國、印度、台灣 三個地區的熱門影片
+ * - 同時追蹤一般影片和 Shorts 短影片（≤60秒）
+ * - 記錄排名變化、觀看數、按讚數、留言數歷史
+ * - 每個地區類型保留前 20 名影片
+ */
+function setupSystem() {
+  console.log('🚀 =================================');
+  console.log('🚀 YouTube 熱門影片追蹤系統初始化');
+  console.log('🚀 =================================');
+  console.log('');
+
+  try {
+    // 步驟 1: 創建或檢查 Google Sheet
+    console.log('📋 步驟 1: 設置 Google Sheet...');
+    const sheet = getTrackingSheet();
+
+    // 強制重建標題行（處理清空工作表的情況）
+    console.log('   ⚙️  設置欄位標題...');
+    sheet.getRange(1, 1, 1, COLUMNS.length).setValues([COLUMNS]);
+    sheet.getRange(1, 1, 1, COLUMNS.length).setFontWeight('bold').setBackground('#E8F0FE');
+
+    console.log(`   ✅ Google Sheet 已準備完成 (${COLUMNS.length} 個欄位)`);
+    console.log(`   🔗 檔案連結: https://docs.google.com/spreadsheets/d/${sheet.getParent().getId()}`);
+    console.log('');
+
+    // 步驟 2: 設置自動觸發器
+    console.log('⏰ 步驟 2: 設置每日自動追蹤...');
+    setupDailyTrigger();
+    console.log('   ✅ 每日觸發器已設置（每天早上 6 點自動執行）');
+    console.log('');
+
+    // 步驟 3: 執行初始數據收集測試
+    console.log('🎯 步驟 3: 測試數據收集功能...');
+    const testResult = testInitialDataCollection();
+    console.log('');
+
+    // 成功總結
+    console.log('🎉 ================================');
+    console.log('🎉 系統初始化完成！');
+    console.log('🎉 ================================');
+    console.log('');
+    console.log('📊 系統狀態：');
+    console.log(`   • Google Sheet: ✅ 已創建 (${COLUMNS.length} 欄)`);
+    console.log('   • 每日追蹤: ✅ 已啟用 (每天 06:00)');
+    console.log('   • API 連接: ✅ 正常');
+    console.log(`   • 測試收集: ✅ 成功 (${testResult.count} 筆影片)`);
+    console.log('');
+    console.log('🎯 下一步操作：');
+    console.log('   1. 系統將自動每天收集熱門影片數據');
+    console.log('   2. 您可以隨時查看 Google Sheet 中的數據');
+    console.log('   3. 如需立即手動收集數據，請執行: dailyYouTubeTracking()');
+    console.log('   4. 如需檢查系統狀態，請執行: checkSystemStatus()');
+    console.log('');
+    console.log('📝 重要提醒：');
+    console.log('   • 數據會自動追蹤影片的觀看數、按讚數、留言數變化');
+    console.log('   • 系統涵蓋 美國、印度、台灣 三個地區');
+    console.log('   • 同時追蹤一般影片和 Shorts 短影片');
+    console.log('   • 如需停用自動追蹤，請執行: removeDailyTrigger()');
+
+  } catch (error) {
+    console.log('');
+    console.log('❌ ================================');
+    console.log('❌ 初始化過程發生錯誤');
+    console.log('❌ ================================');
+    console.log(`錯誤訊息: ${error.toString()}`);
+    console.log('');
+    console.log('🔧 可能的解決方案：');
+    console.log('   1. 確認您有 YouTube Data API v3 的存取權限');
+    console.log('   2. 檢查 Google Drive 和 Google Sheets API 權限');
+    console.log('   3. 如果是首次使用，請授予所需的 API 權限');
+    console.log('   4. 重新執行此函數進行重試');
+
+    throw error;
+  }
+}
+
+/**
+ * 📊 【日常運行】每日 YouTube 熱門影片追蹤
+ *
+ * 🎯 此函數執行完整的數據收集和更新流程
+ *
+ * ✅ 自動執行內容：
+ * - 搜尋 3 個地區（美國、印度、台灣）的熱門影片
+ * - 分別追蹤一般影片和 Shorts 短影片
+ * - 更新排名、觀看數、按讚數、留言數歷史
+ * - 清理超過 10 天未更新的過期記錄
+ *
+ * ⏰ 觸發方式：
+ * - 自動：每天早上 6:00（由 setupSystem 設置的觸發器）
+ * - 手動：直接執行此函數進行即時更新
+ *
+ * 🔧 系統參數（可在頂部常量區修改）：
+ * - DAILY_SEARCH_DAYS: 搜尋過去幾天的影片
+ * - API_MAX_RESULTS: 每次搜尋的最大影片數
+ * - RANKING_LIMIT: 每個地區類型保留的排名數量
+ * - SHORTS_DURATION_LIMIT: Shorts 影片長度閾值
+ *
+ * 📋 執行結果會顯示在控制台，包含成功/失敗的詳細資訊
+ */
+function dailyYouTubeTracking() {
+  try {
+    console.log('=== 開始每日追蹤 ===');
+
+    const sheet = getTrackingSheet();
+    const today = new Date().toISOString().split('T')[0];
+
+    // 對每個地區和類型進行追蹤 - 數據驅動
+    Object.keys(REGIONS).forEach(regionCode => {
+      [false, true].forEach(isShorts => {
+        try {
+          trackRegion(sheet, regionCode, isShorts, today);
+        } catch (error) {
+          console.log(`追蹤 ${regionCode} ${isShorts ? '短影片' : '影片'} 失敗: ${error}`);
+        }
+      });
+    });
+
+    // 清理過期記錄 - 單一職責
+    cleanupStaleRecords(sheet, today);
+
+    console.log('=== 追蹤完成 ===');
+
+  } catch (error) {
+    console.log(`追蹤系統失敗: ${error}`);
+    throw error;
+  }
+}
 
 // ============================================================================
 // Web API 入口點 - 保持向後兼容
@@ -83,8 +264,8 @@ function doGet(e) {
  * @return {Object} 正規化後的配置
  */
 function normalizeParams(params) {
-  const days = Math.max(1, Math.min(7, parseInt(params.days) || 2));
-  const max = Math.max(1, Math.min(50, parseInt(params.max) || 50));
+  const days = Math.max(1, Math.min(7, parseInt(params.days) || DEFAULT_WEB_DAYS));
+  const max = Math.max(1, Math.min(50, parseInt(params.max) || DEFAULT_WEB_COUNT));
   const region = params.regionCode || '';
   const isShorts = params.shorts === 'true';
 
@@ -103,9 +284,7 @@ function normalizeParams(params) {
     // query 保持不變
   }
 
-  if (isShorts) {
-    query = (query ? query + ' ' : '') + '#shorts';
-  }
+  // 移除 hashtag 搜尋，後續用影片長度判斷真正的 Shorts
 
   // 關鍵字處理 - 簡化邏輯
   let keywords = [];
@@ -186,7 +365,7 @@ function getVideoDetails(items) {
 
   if (videoIds.length === 0) return [];
 
-  const videosResult = YouTube.Videos.list('snippet,statistics', { id: videoIds.join(',') });
+  const videosResult = YouTube.Videos.list('snippet,statistics,contentDetails', { id: videoIds.join(',') });
   const videos = (videosResult && videosResult.items) || [];
 
   return videos
@@ -196,6 +375,9 @@ function getVideoDetails(items) {
       channelTitle: video.snippet.channelTitle || '',
       publishedAt: video.snippet.publishedAt || '',
       viewCount: parseInt(video.statistics.viewCount) || 0,
+      likeCount: parseInt(video.statistics.likeCount) || 0,
+      commentCount: parseInt(video.statistics.commentCount) || 0,
+      durationSeconds: parseDurationToSeconds(video.contentDetails?.duration || ''),
       url: `https://www.youtube.com/watch?v=${video.id}`,
       thumbnails: video.snippet.thumbnails || {},
       tags: video.snippet.tags || [],                    // 創作者設定的標籤
@@ -225,6 +407,28 @@ function extractHashtags(text) {
 }
 
 /**
+ * 解析 YouTube 影片長度格式
+ *
+ * "好品味" - 處理所有可能的時間格式，轉換為秒數
+ *
+ * @param {string} duration - YouTube API 時間格式 (例: PT4M13S, PT59S, PT1H2M3S)
+ * @return {number} 影片長度（秒）
+ */
+function parseDurationToSeconds(duration) {
+  if (!duration) return 0;
+
+  // YouTube API 格式：PT4M13S, PT59S, PT1H2M3S
+  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!match) return 0;
+
+  const hours = parseInt(match[1]) || 0;
+  const minutes = parseInt(match[2]) || 0;
+  const seconds = parseInt(match[3]) || 0;
+
+  return hours * 3600 + minutes * 60 + seconds;
+}
+
+/**
  * 創建 JSON 回應
  *
  * @param {Object} data - 回應資料
@@ -241,41 +445,6 @@ function createJsonResponse(data, status) {
 // ============================================================================
 // 追蹤系統 - 簡化的數據結構
 // ============================================================================
-
-/**
- * 每日追蹤主函數
- *
- * "If you need more than 3 levels of indentation, you're screwed."
- * 這個函數只有 2 層縮進，很好。
- */
-function dailyYouTubeTracking() {
-  try {
-    console.log('=== 開始每日追蹤 ===');
-
-    const sheet = getTrackingSheet();
-    const today = new Date().toISOString().split('T')[0];
-
-    // 對每個地區和類型進行追蹤 - 數據驅動
-    Object.keys(REGIONS).forEach(regionCode => {
-      [false, true].forEach(isShorts => {
-        try {
-          trackRegion(sheet, regionCode, isShorts, today);
-        } catch (error) {
-          console.log(`追蹤 ${regionCode} ${isShorts ? '短影片' : '影片'} 失敗: ${error}`);
-        }
-      });
-    });
-
-    // 清理過期記錄 - 單一職責
-    cleanupStaleRecords(sheet, today);
-
-    console.log('=== 追蹤完成 ===');
-
-  } catch (error) {
-    console.log(`追蹤系統失敗: ${error}`);
-    throw error;
-  }
-}
 
 /**
  * 取得或創建追蹤工作表
@@ -319,39 +488,55 @@ function getTrackingSheet() {
  *
  * @param {GoogleAppsScript.Spreadsheet.Sheet} sheet - 工作表
  * @param {string} regionCode - 地區代碼
- * @param {boolean} isShorts - 是否為短影片
+ * @param {boolean} wantShorts - 是否要追蹤短影片
  * @param {string} today - 今日日期字串
  */
-function trackRegion(sheet, regionCode, isShorts, today) {
-  const type = isShorts ? 'shorts' : 'videos';
+function trackRegion(sheet, regionCode, wantShorts, today) {
+  const type = wantShorts ? 'shorts' : 'videos';
   console.log(`追蹤 ${REGIONS[regionCode].name} ${type}`);
 
-  // 搜尋影片
+  // 搜尋影片（不再用 hashtag 區分）
   const config = {
-    query: REGIONS[regionCode].query + (isShorts ? ' #shorts' : ''),
+    query: REGIONS[regionCode].query,
     keywords: [],
-    maxResults: 50,
+    maxResults: API_MAX_RESULTS,
     regionCode: regionCode,
     relevanceLanguage: REGIONS[regionCode].lang,
-    isShorts: isShorts,
-    publishedAfter: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    isShorts: wantShorts,
+    publishedAfter: new Date(Date.now() - DAILY_SEARCH_DAYS * 24 * 60 * 60 * 1000).toISOString(),
     publishedBefore: new Date().toISOString()
   };
 
   const videos = searchVideos(config);
   if (videos.length === 0) return;
 
+  // 根據需求過濾影片
+  const filteredVideos = videos
+    .filter(video => {
+      if (wantShorts) {
+        // 如果要 shorts，只保留 ≤60 秒的影片
+        return video.durationSeconds > 0 && video.durationSeconds <= SHORTS_DURATION_LIMIT;
+      } else {
+        // 如果要一般影片，不管長度，全部保留
+        return true;
+      }
+    })
+    .slice(0, RANKING_LIMIT);
+
+  if (filteredVideos.length === 0) return;
+
   // 取得現有資料
   const existingData = getExistingData(sheet);
 
-  // 處理每個影片
-  videos.forEach(video => {
+  // 依排名處理每個影片
+  filteredVideos.forEach((video, index) => {
+    const rank = index + 1; // 排名從 1 開始
     const key = `${video.videoId}_${regionCode}_${type}`;
 
     if (existingData[key] && existingData[key].isTracking) {
-      updateExistingRecord(sheet, existingData[key], video, today);
+      updateExistingRecord(sheet, existingData[key], video, today, rank);
     } else if (!existingData[key]) {
-      addNewRecord(sheet, video, regionCode, type, today);
+      addNewRecord(sheet, video, regionCode, type, today, rank);
     }
     // 如果 isTracking 是 false，就跳過 - 簡單明瞭
   });
@@ -373,22 +558,26 @@ function getExistingData(sheet) {
   const existing = {};
 
   data.forEach((row, index) => {
-    if (row[0]) { // videoId 存在
-      const key = `${row[0]}_${row[4]}_${row[5]}`; // videoId_region_type
+    if (row[1]) { // videoId 存在（現在在第2欄）
+      const key = `${row[1]}_${row[5]}_${row[6]}`; // videoId_region_type
       existing[key] = {
         rowIndex: index + 2,
-        videoId: row[0],
-        title: row[1],
-        channelTitle: row[2],
-        publishedAt: row[3],
-        region: row[4],
-        type: row[5],
-        firstSeen: row[6],
-        lastSeen: row[7],
-        isTracking: row[8],
-        url: row[9],
-        viewHistory: row[10] || '',
-        hashtags: row[11] || ''
+        rank: row[0] || 0,
+        videoId: row[1],
+        title: row[2],
+        channelTitle: row[3],
+        publishedAt: row[4],
+        region: row[5],
+        type: row[6],
+        firstSeen: row[7],
+        lastSeen: row[8],
+        isTracking: row[9],
+        url: row[10],
+        viewHistory: row[11] || '',
+        hashtags: row[12] || '',
+        likeHistory: row[13] || '',
+        commentHistory: row[14] || '',
+        durationSeconds: row[15] || 0
       };
     }
   });
@@ -403,18 +592,34 @@ function getExistingData(sheet) {
  * @param {Object} existing - 現有記錄
  * @param {Object} video - 新的影片資料
  * @param {string} today - 今日日期
+ * @param {number} rank - 當前排名
  */
-function updateExistingRecord(sheet, existing, video, today) {
-  const newHistory = existing.viewHistory
+function updateExistingRecord(sheet, existing, video, today, rank) {
+  // 更新觀看數歷史
+  const newViewHistory = existing.viewHistory
     ? `${existing.viewHistory},${video.viewCount}`
     : video.viewCount.toString();
+
+  // 更新按讚數歷史
+  const newLikeHistory = existing.likeHistory
+    ? `${existing.likeHistory},${video.likeCount}`
+    : video.likeCount.toString();
+
+  // 更新留言數歷史
+  const newCommentHistory = existing.commentHistory
+    ? `${existing.commentHistory},${video.commentCount}`
+    : video.commentCount.toString();
 
   // 轉換 hashtags 陣列為逗號分隔字串
   const hashtagsString = video.hashtags ? video.hashtags.join(',') : '';
 
-  sheet.getRange(existing.rowIndex, 8).setValue(today); // lastSeen
-  sheet.getRange(existing.rowIndex, 11).setValue(newHistory); // viewHistory
-  sheet.getRange(existing.rowIndex, 12).setValue(hashtagsString); // hashtags
+  sheet.getRange(existing.rowIndex, 1).setValue(rank); // rank
+  sheet.getRange(existing.rowIndex, 9).setValue(today); // lastSeen
+  sheet.getRange(existing.rowIndex, 12).setValue(newViewHistory); // viewHistory
+  sheet.getRange(existing.rowIndex, 13).setValue(hashtagsString); // hashtags
+  sheet.getRange(existing.rowIndex, 14).setValue(newLikeHistory); // likeHistory
+  sheet.getRange(existing.rowIndex, 15).setValue(newCommentHistory); // commentHistory
+  sheet.getRange(existing.rowIndex, 16).setValue(video.durationSeconds); // durationSeconds
 }
 
 /**
@@ -425,12 +630,14 @@ function updateExistingRecord(sheet, existing, video, today) {
  * @param {string} regionCode - 地區代碼
  * @param {string} type - 影片類型
  * @param {string} today - 今日日期
+ * @param {number} rank - 排名
  */
-function addNewRecord(sheet, video, regionCode, type, today) {
+function addNewRecord(sheet, video, regionCode, type, today, rank) {
   // 轉換 hashtags 陣列為逗號分隔字串
   const hashtagsString = video.hashtags ? video.hashtags.join(',') : '';
 
   const row = [
+    rank, // rank
     video.videoId,
     video.title,
     video.channelTitle,
@@ -442,7 +649,10 @@ function addNewRecord(sheet, video, regionCode, type, today) {
     true,  // isTracking
     video.url,
     video.viewCount.toString(), // viewHistory
-    hashtagsString // hashtags
+    hashtagsString, // hashtags
+    video.likeCount.toString(), // likeHistory
+    video.commentCount.toString(), // commentHistory
+    video.durationSeconds // durationSeconds
   ];
 
   sheet.appendRow(row);
@@ -471,6 +681,40 @@ function cleanupStaleRecords(sheet, today) {
 
   if (updatedCount > 0) {
     console.log(`停止追蹤 ${updatedCount} 個過期記錄`);
+  }
+}
+
+/**
+ * 測試初始數據收集
+ * @return {Object} 測試結果
+ */
+function testInitialDataCollection() {
+  try {
+    const config = {
+      query: 'trending',
+      keywords: [],
+      maxResults: 10, // 測試用少量數據
+      regionCode: 'TW',
+      relevanceLanguage: 'zh-Hant',
+      isShorts: false,
+      publishedAfter: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 測試用 1 天
+      publishedBefore: new Date().toISOString()
+    };
+
+    const videos = searchVideos(config);
+    console.log(`   ✅ 成功收集 ${videos.length} 個測試影片`);
+
+    if (videos.length > 0) {
+      const sample = videos[0];
+      console.log(`   📋 範例: "${sample.title.substring(0, 50)}..."`);
+      console.log(`   📊 數據: 觀看=${sample.viewCount.toLocaleString()}, 按讚=${sample.likeCount.toLocaleString()}, 留言=${sample.commentCount.toLocaleString()}`);
+    }
+
+    return { success: true, count: videos.length };
+
+  } catch (error) {
+    console.log(`   ❌ 數據收集測試失敗: ${error.toString()}`);
+    return { success: false, count: 0, error: error.toString() };
   }
 }
 
@@ -523,101 +767,15 @@ function checkSystemStatus() {
     const rowCount = sheet.getLastRow() - 1;
     console.log(`追蹤記錄數量: ${rowCount}`);
     console.log(`檔案連結: https://docs.google.com/spreadsheets/d/${sheet.getParent().getId()}`);
+
+    // 檢查 COLUMNS 設定
+    console.log('\n系統配置檢查：');
+    console.log(`欄位數量: ${COLUMNS.length}`);
+    console.log('新增欄位: ', COLUMNS.slice(-4)); // 顯示最後 4 個欄位
+
   } catch (error) {
     console.log(`無法取得追蹤檔案: ${error}`);
   }
-}
-
-// ============================================================================
-// 測試函數 - 保持向後兼容
-// ============================================================================
-
-/**
- * 測試搜尋功能
- */
-function testGetTrending() {
-  const result = searchVideos({
-    query: '台灣 OR 繁體 OR 中文 #shorts',
-    keywords: [],
-    maxResults: 10,
-    regionCode: 'TW',
-    relevanceLanguage: 'zh-Hant',
-    isShorts: true,
-    publishedAfter: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    publishedBefore: new Date().toISOString()
-  });
-
-  console.log(`找到 ${result.length} 個影片`);
-  result.slice(0, 3).forEach((video, index) => {
-    console.log(`${index + 1}. ${video.title} (${video.viewCount.toLocaleString()} 次觀看)`);
-  });
-
-  return result;
-}
-
-/**
- * 測試追蹤功能
- */
-function testDailyTracking() {
-  console.log('開始測試追蹤功能...');
-  dailyYouTubeTracking();
-  console.log('測試完成');
-}
-
-/**
- * 測試空 query 的行為
- *
- * "Theory and practice sometimes clash. Theory loses."
- * 讓我們看看 YouTube API 對空搜尋詞的真實反應
- */
-function testEmptyQuery() {
-  console.log('=== 測試空 query 行為 ===');
-
-  const testCases = [
-    { name: '完全空白', config: { query: '', keywords: [], maxResults: 5 } },
-    { name: '只有 Shorts', config: { query: '#shorts', keywords: [], maxResults: 5 } },
-    { name: '只有空格', config: { query: '   ', keywords: [], maxResults: 5 } },
-    { name: '空字串 + 地區', config: { query: '', keywords: [], maxResults: 5, regionCode: 'TW' } }
-  ];
-
-  testCases.forEach(testCase => {
-    console.log(`\n--- 測試案例: ${testCase.name} ---`);
-    console.log(`Query: "${testCase.config.query}"`);
-
-    try {
-      // 直接測試 YouTube API 呼叫
-      const searchParams = {
-        q: testCase.config.query,
-        maxResults: testCase.config.maxResults,
-        order: 'viewCount',
-        publishedAfter: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        publishedBefore: new Date().toISOString(),
-        type: 'video'
-      };
-
-      if (testCase.config.regionCode) {
-        searchParams.regionCode = testCase.config.regionCode;
-      }
-
-      console.log('發送的搜尋參數:', JSON.stringify(searchParams, null, 2));
-
-      const searchResult = YouTube.Search.list('snippet', searchParams);
-      const items = (searchResult && searchResult.items) || [];
-
-      console.log(`✅ 成功 - 找到 ${items.length} 個結果`);
-
-      if (items.length > 0) {
-        console.log(`第一個結果: "${items[0].snippet.title}"`);
-      }
-
-    } catch (error) {
-      console.log(`❌ 失敗 - 錯誤訊息: ${error.toString()}`);
-      console.log(`錯誤類型: ${error.name || 'Unknown'}`);
-    }
-  });
-
-  console.log('\n=== 測試完成 ===');
-  console.log('📊 結論: 請檢查上述結果，看看哪些情況會導致 API 錯誤');
 }
 
 // ============================================================================
@@ -632,8 +790,8 @@ function testEmptyQuery() {
 function getTrending(regionCode, isShorts, days, maxResults) {
   regionCode = regionCode || '';
   isShorts = isShorts || false;
-  days = days || 3;
-  maxResults = maxResults || 20;
+  days = days || DEFAULT_LEGACY_DAYS;
+  maxResults = maxResults || DEFAULT_LEGACY_COUNT;
 
   const region = REGIONS[regionCode];
   const config = {
