@@ -1,11 +1,22 @@
 /**
- * YouTube 熱門影片追蹤系統 - Linus 式重構版本
+ * YouTube 熱門影片追蹤系統 - Linus 式重構版本 (v2.0 階層檔案結構)
  *
  * 設計哲學：
- * 1. 數據結構決定一切：單一工作表，簡單欄位
+ * 1. 數據結構決定一切：階層檔案，時間組織
  * 2. 消除特殊情況：統一的錯誤處理，統一的數據流
  * 3. 函數只做一件事：每個函數都有明確的單一職責
  * 4. 向後兼容：Web API 介面保持不變
+ * 5. 可擴展性：永不觸及 Google 限制
+ *
+ * 檔案結構：
+ * YouTube Analytics Data/
+ * ├── 2024/
+ * │   ├── 2024-09.xlsx (每日分頁: 01, 02, ..., 30)
+ * │   ├── 2024-10.xlsx (每日分頁: 01, 02, ..., 31)
+ * │   └── ...
+ * ├── 2025/
+ * │   ├── 2025-01.xlsx
+ * │   └── ...
  *
  * "Bad programmers worry about the code. Good programmers worry about data structures."
  *                                                                    - Linus Torvalds
@@ -15,17 +26,19 @@
 // 全域常量 - 所有魔術數字都放這裡
 // ============================================================================
 
-/** @const {string} 追蹤檔案名稱 */
-const TRACKING_FILE_NAME = 'YouTube 熱門影片追蹤';
+/** @const {string} 主資料夾名稱 */
+const MAIN_FOLDER_NAME = 'YouTube Analytics Data';
 
-/** @const {string} 工作表名稱 - 只需要一個 */
-const SHEET_NAME = '影片追蹤';
+/** @const {string} 舊版追蹤檔案名稱 - 向後兼容 */
+const LEGACY_TRACKING_FILE_NAME = 'YouTube 熱門影片追蹤';
 
-/** @const {Array<string>} 資料欄位定義 */
+/** @const {string} 工作表名稱模板 */
+const SHEET_NAME_PREFIX = '影片追蹤';
+
+/** @const {Array<string>} 資料欄位定義 - v2.0 每日分頁版本 */
 const COLUMNS = [
   'rank', 'videoId', 'title', 'channelTitle', 'publishedAt', 'region', 'type',
-  'firstSeen', 'lastSeen', 'isTracking', 'url', 'viewHistory', 'hashtags',
-  'likeHistory', 'commentHistory', 'durationSeconds'
+  'recordDate', 'url', 'viewCount', 'likeCount', 'commentCount', 'hashtags', 'durationSeconds'
 ];
 
 /** @const {Object} 地區配置 - 數據驅動，不是硬編碼 */
@@ -102,17 +115,9 @@ function setupSystem() {
   console.log('');
 
   try {
-    // 步驟 1: 創建或檢查 Google Sheet
-    console.log('📋 步驟 1: 設置 Google Sheet...');
-    const sheet = getTrackingSheet();
-
-    // 強制重建標題行（處理清空工作表的情況）
-    console.log('   ⚙️  設置欄位標題...');
-    sheet.getRange(1, 1, 1, COLUMNS.length).setValues([COLUMNS]);
-    sheet.getRange(1, 1, 1, COLUMNS.length).setFontWeight('bold').setBackground('#E8F0FE');
-
-    console.log(`   ✅ Google Sheet 已準備完成 (${COLUMNS.length} 個欄位)`);
-    console.log(`   🔗 檔案連結: https://docs.google.com/spreadsheets/d/${sheet.getParent().getId()}`);
+    // 步驟 1: 建立階層檔案結構
+    console.log('📁 步驟 1: 建立階層檔案結構...');
+    setupHierarchicalStructure();
     console.log('');
 
     // 步驟 2: 設置自動觸發器
@@ -132,7 +137,7 @@ function setupSystem() {
     console.log('🎉 ================================');
     console.log('');
     console.log('📊 系統狀態：');
-    console.log(`   • Google Sheet: ✅ 已創建 (${COLUMNS.length} 欄)`);
+    console.log('   • 階層檔案結構: ✅ 已建立');
     console.log('   • 每日追蹤: ✅ 已啟用 (每天 06:00)');
     console.log('   • API 連接: ✅ 正常');
     console.log(`   • 測試收集: ✅ 成功 (${testResult.count} 筆影片)`);
@@ -193,22 +198,21 @@ function dailyYouTubeTracking() {
   try {
     console.log('=== 開始每日追蹤 ===');
 
-    const sheet = getTrackingSheet();
+    // 第一步：確保今日結構存在
+    const todayInfo = ensureTodayStructureExists();
+    const todaySheet = todayInfo.todaySheet;
     const today = new Date().toISOString().split('T')[0];
 
-    // 對每個地區和類型進行追蹤 - 數據驅動
+    // 對每個地區和類型進行追蹤 - 數據驅動，直接寫入今日分頁
     Object.keys(REGIONS).forEach(regionCode => {
       [false, true].forEach(isShorts => {
         try {
-          trackRegion(sheet, regionCode, isShorts, today);
+          trackRegionToDaily(todaySheet, regionCode, isShorts, today);
         } catch (error) {
           console.log(`追蹤 ${regionCode} ${isShorts ? '短影片' : '影片'} 失敗: ${error}`);
         }
       });
     });
-
-    // 清理過期記錄 - 單一職責
-    cleanupStaleRecords(sheet, today);
 
     console.log('=== 追蹤完成 ===');
 
@@ -806,4 +810,441 @@ function getTrending(regionCode, isShorts, days, maxResults) {
   };
 
   return searchVideos(config);
+}
+
+// ============================================================================
+// 階層檔案結構系統 - v2.0 新功能
+// ============================================================================
+
+/**
+ * 🚀 【v2.0 新功能】建立階層式檔案結構
+ *
+ * 創建：YouTube Analytics Data/年份/月份檔案/每日分頁
+ *
+ * @param {number} [year] - 目標年份，預設當前年份
+ * @param {number} [month] - 目標月份，預設當前月份
+ */
+function createHierarchicalStructure(year, month) {
+  const now = new Date();
+  const targetYear = year || now.getFullYear();
+  const targetMonth = month || now.getMonth() + 1;
+
+  console.log(`🚀 開始建立階層檔案結構：${targetYear}-${targetMonth.toString().padStart(2, '0')}`);
+
+  try {
+    // 第一步：建立主資料夾
+    const mainFolder = getOrCreateMainFolder();
+    console.log(`✅ 主資料夾：${MAIN_FOLDER_NAME}`);
+
+    // 第二步：建立年份資料夾
+    const yearFolder = getOrCreateYearFolder(mainFolder, targetYear);
+    console.log(`✅ 年份資料夾：${targetYear}`);
+
+    // 第三步：建立月份檔案
+    const monthlyFile = getOrCreateMonthlyFile(yearFolder, targetYear, targetMonth);
+    console.log(`✅ 月份檔案：${targetYear}-${targetMonth.toString().padStart(2, '0')}`);
+
+    // 第四步：建立每日分頁
+    const daysInMonth = new Date(targetYear, targetMonth, 0).getDate();
+    createDailySheets(monthlyFile, daysInMonth);
+    console.log(`✅ 每日分頁：01-${daysInMonth.toString().padStart(2, '0')}`);
+
+    console.log(`🎉 階層結構建立完成！`);
+    console.log(`📁 檔案路徑：${MAIN_FOLDER_NAME}/${targetYear}/${targetYear}-${targetMonth.toString().padStart(2, '0')}`);
+    console.log(`🔗 檔案連結：https://docs.google.com/spreadsheets/d/${monthlyFile.getId()}`);
+
+    return {
+      mainFolder,
+      yearFolder,
+      monthlyFile,
+      fileUrl: `https://docs.google.com/spreadsheets/d/${monthlyFile.getId()}`
+    };
+
+  } catch (error) {
+    console.log(`❌ 建立階層結構失敗：${error.toString()}`);
+    throw error;
+  }
+}
+
+/**
+ * 取得或創建主資料夾
+ * @return {GoogleAppsScript.Drive.Folder} 主資料夾
+ */
+function getOrCreateMainFolder() {
+  const folders = DriveApp.getFoldersByName(MAIN_FOLDER_NAME);
+  if (folders.hasNext()) {
+    return folders.next();
+  }
+  return DriveApp.createFolder(MAIN_FOLDER_NAME);
+}
+
+/**
+ * 取得或創建年份資料夾
+ * @param {GoogleAppsScript.Drive.Folder} parentFolder - 父資料夾
+ * @param {number} year - 年份
+ * @return {GoogleAppsScript.Drive.Folder} 年份資料夾
+ */
+function getOrCreateYearFolder(parentFolder, year) {
+  const yearName = year.toString();
+  const subFolders = parentFolder.getFoldersByName(yearName);
+  if (subFolders.hasNext()) {
+    return subFolders.next();
+  }
+  return parentFolder.createFolder(yearName);
+}
+
+/**
+ * 取得或創建月份檔案
+ * @param {GoogleAppsScript.Drive.Folder} yearFolder - 年份資料夾
+ * @param {number} year - 年份
+ * @param {number} month - 月份
+ * @return {GoogleAppsScript.Spreadsheet.Spreadsheet} 月份檔案
+ */
+function getOrCreateMonthlyFile(yearFolder, year, month) {
+  const fileName = `${year}-${month.toString().padStart(2, '0')}`;
+  const files = yearFolder.getFilesByName(fileName);
+
+  if (files.hasNext()) {
+    return SpreadsheetApp.openById(files.next().getId());
+  }
+
+  // 創建新檔案
+  const spreadsheet = SpreadsheetApp.create(fileName);
+  const file = DriveApp.getFileById(spreadsheet.getId());
+
+  // 移動到正確的資料夾
+  yearFolder.addFile(file);
+  DriveApp.getRootFolder().removeFile(file);
+
+  return spreadsheet;
+}
+
+/**
+ * 創建每日分頁
+ * @param {GoogleAppsScript.Spreadsheet.Spreadsheet} spreadsheet - 月份檔案
+ * @param {number} daysInMonth - 該月天數
+ */
+function createDailySheets(spreadsheet, daysInMonth) {
+  // 刪除預設工作表
+  const defaultSheet = spreadsheet.getSheetByName('工作表1') || spreadsheet.getSheetByName('Sheet1');
+
+  // 創建每日分頁
+  for (let day = 1; day <= daysInMonth; day++) {
+    const sheetName = day.toString().padStart(2, '0');
+    let sheet = spreadsheet.getSheetByName(sheetName);
+
+    if (!sheet) {
+      sheet = spreadsheet.insertSheet(sheetName);
+    }
+
+    // 設定標題行
+    sheet.getRange(1, 1, 1, COLUMNS.length).setValues([COLUMNS]);
+    sheet.getRange(1, 1, 1, COLUMNS.length).setFontWeight('bold').setBackground('#E8F0FE');
+  }
+
+  // 最後刪除預設工作表（如果還存在）
+  if (defaultSheet && spreadsheet.getSheets().length > 1) {
+    spreadsheet.deleteSheet(defaultSheet);
+  }
+}
+
+/**
+ * 🎯 【快速建立】建立當前年份的所有月份結構
+ */
+function createCurrentYearStructure() {
+  const currentYear = new Date().getFullYear();
+
+  console.log(`🚀 建立 ${currentYear} 年完整結構`);
+
+  for (let month = 1; month <= 12; month++) {
+    try {
+      createHierarchicalStructure(currentYear, month);
+      console.log(`✅ ${currentYear}-${month.toString().padStart(2, '0')} 完成`);
+    } catch (error) {
+      console.log(`❌ ${currentYear}-${month.toString().padStart(2, '0')} 失敗：${error}`);
+    }
+  }
+
+  console.log(`🎉 ${currentYear} 年結構建立完成！`);
+}
+
+/**
+ * 📝 【測試用】建立範例結構（2024-09 和 2024-10）
+ */
+function createSampleStructure() {
+  console.log('🧪 建立範例結構（2024-09 和 2024-10）');
+
+  const results = [];
+
+  // 建立 2024-09
+  try {
+    const sep2024 = createHierarchicalStructure(2024, 9);
+    results.push({ month: '2024-09', success: true, url: sep2024.fileUrl });
+    console.log('✅ 2024-09 建立成功');
+  } catch (error) {
+    results.push({ month: '2024-09', success: false, error: error.toString() });
+    console.log(`❌ 2024-09 建立失敗：${error}`);
+  }
+
+  // 建立 2024-10
+  try {
+    const oct2024 = createHierarchicalStructure(2024, 10);
+    results.push({ month: '2024-10', success: true, url: oct2024.fileUrl });
+    console.log('✅ 2024-10 建立成功');
+  } catch (error) {
+    results.push({ month: '2024-10', success: false, error: error.toString() });
+    console.log(`❌ 2024-10 建立失敗：${error}`);
+  }
+
+  console.log('🎯 範例結構建立完成！');
+  console.log('📋 結果總結：');
+  results.forEach(result => {
+    if (result.success) {
+      console.log(`   ✅ ${result.month}: ${result.url}`);
+    } else {
+      console.log(`   ❌ ${result.month}: ${result.error}`);
+    }
+  });
+
+  return results;
+}
+
+/**
+ * 🏗️ 【系統初始化用】建立初始階層結構
+ *
+ * 在 setupSystem() 中調用，建立當前年份的基本結構
+ */
+function setupHierarchicalStructure() {
+  try {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    console.log(`   ⚙️  建立 ${currentYear} 年階層結構...`);
+
+    console.log(`   📁 主資料夾：${MAIN_FOLDER_NAME}`);
+    console.log(`   📁 年份資料夾：${currentYear}`);
+
+    // 智能建立今日+明日分頁（避免跨日邊界問題）
+    console.log(`   📋 建立今日與明日分頁...`);
+
+    // 呼叫智能結構檢查函數，它會處理今日+明日分頁建立
+    // 此函數會自動建立必要的月份檔案和分頁
+    ensureTodayStructureExists(now);
+
+    console.log(`   ✅ 階層結構與分頁建立完成`);
+
+  } catch (error) {
+    console.log(`   ❌ 階層結構建立失敗：${error.toString()}`);
+    // 不拋出錯誤，讓系統繼續初始化其他部分
+  }
+}
+
+/**
+ * 🔍 【智能按需】確保今日結構存在
+ *
+ * 智能邊界處理：
+ * - 只建立今日+明日分頁
+ * - 自動處理跨月、跨年邊界
+ * - 重複執行時跳過已存在的結構
+ *
+ * @param {Date} [targetDate] - 目標日期，預設今日
+ * @return {Object} 今日的檔案和分頁資訊
+ */
+function ensureTodayStructureExists(targetDate) {
+  const today = targetDate || new Date();
+  const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+
+  const todayYear = today.getFullYear();
+  const todayMonth = today.getMonth() + 1;
+  const todayDay = today.getDate();
+
+  const tomorrowYear = tomorrow.getFullYear();
+  const tomorrowMonth = tomorrow.getMonth() + 1;
+  const tomorrowDay = tomorrow.getDate();
+
+  try {
+    console.log(`🔍 檢查結構：${todayYear}-${todayMonth.toString().padStart(2, '0')}-${todayDay.toString().padStart(2, '0')}`);
+
+    // 確保主資料夾存在
+    const mainFolder = getOrCreateMainFolder();
+
+    // === 處理今日結構 ===
+    const todayYearFolder = getOrCreateYearFolder(mainFolder, todayYear);
+    const todayMonthlyFile = getOrCreateMonthlyFile(todayYearFolder, todayYear, todayMonth);
+    const todaySheetName = todayDay.toString().padStart(2, '0');
+
+    // 智能建立今日分頁
+    createSheetIfNotExists(todayMonthlyFile, todaySheetName);
+    const todaySheet = todayMonthlyFile.getSheetByName(todaySheetName);
+
+    // === 處理明日結構（邊界安全） ===
+    let tomorrowYearFolder, tomorrowMonthlyFile;
+
+    if (tomorrowYear !== todayYear) {
+      // 跨年邊界：2025/12/31 → 2026/01/01
+      console.log(`   🎆 跨年邊界：${todayYear} → ${tomorrowYear}`);
+      tomorrowYearFolder = getOrCreateYearFolder(mainFolder, tomorrowYear);
+      tomorrowMonthlyFile = getOrCreateMonthlyFile(tomorrowYearFolder, tomorrowYear, tomorrowMonth);
+    } else if (tomorrowMonth !== todayMonth) {
+      // 跨月邊界：09/30 → 10/01
+      console.log(`   📅 跨月邊界：${todayMonth} → ${tomorrowMonth}`);
+      tomorrowYearFolder = todayYearFolder;  // 同年
+      tomorrowMonthlyFile = getOrCreateMonthlyFile(tomorrowYearFolder, tomorrowYear, tomorrowMonth);
+    } else {
+      // 同月：正常情況
+      tomorrowYearFolder = todayYearFolder;
+      tomorrowMonthlyFile = todayMonthlyFile;
+    }
+
+    // 智能建立明日分頁
+    const tomorrowSheetName = tomorrowDay.toString().padStart(2, '0');
+    createSheetIfNotExists(tomorrowMonthlyFile, tomorrowSheetName);
+
+    console.log(`   ✅ 今日分頁：${todaySheetName}`);
+    console.log(`   ✅ 明日分頁：${tomorrowSheetName} (${tomorrowYear}-${tomorrowMonth.toString().padStart(2, '0')})`);
+
+    return {
+      year: todayYear,
+      month: todayMonth,
+      day: todayDay,
+      monthlyFile: todayMonthlyFile,
+      todaySheet,
+      sheetName: todaySheetName
+    };
+
+  } catch (error) {
+    console.log(`❌ 智能結構檢查失敗：${error.toString()}`);
+    throw error;
+  }
+}
+
+/**
+ * 📝 【新版追蹤】追蹤特定地區的影片到每日分頁
+ *
+ * 與舊版 trackRegion() 不同：
+ * - 不累積歷史數據
+ * - 直接寫入今日分頁
+ * - 每日重新排名
+ *
+ * @param {GoogleAppsScript.Spreadsheet.Sheet} todaySheet - 今日分頁
+ * @param {string} regionCode - 地區代碼
+ * @param {boolean} wantShorts - 是否要追蹤短影片
+ * @param {string} today - 今日日期字串
+ */
+function trackRegionToDaily(todaySheet, regionCode, wantShorts, today) {
+  const type = wantShorts ? 'shorts' : 'videos';
+  console.log(`📝 新版追蹤 ${REGIONS[regionCode].name} ${type} → 今日分頁`);
+
+  // 搜尋影片（使用相同的配置）
+  const config = {
+    query: REGIONS[regionCode].query,
+    keywords: [],
+    maxResults: API_MAX_RESULTS,
+    regionCode: regionCode,
+    relevanceLanguage: REGIONS[regionCode].lang,
+    isShorts: wantShorts,
+    publishedAfter: new Date(Date.now() - DAILY_SEARCH_DAYS * 24 * 60 * 60 * 1000).toISOString(),
+    publishedBefore: new Date().toISOString()
+  };
+
+  const videos = searchVideos(config);
+  if (videos.length === 0) return;
+
+  // 根據需求過濾影片
+  const filteredVideos = videos
+    .filter(video => {
+      if (wantShorts) {
+        return video.durationSeconds > 0 && video.durationSeconds <= SHORTS_DURATION_LIMIT;
+      } else {
+        return true;
+      }
+    })
+    .slice(0, RANKING_LIMIT);
+
+  if (filteredVideos.length === 0) return;
+
+  // 直接寫入今日分頁 - 無歷史累積
+  filteredVideos.forEach((video, index) => {
+    const rank = index + 1;
+    addDailyRecord(todaySheet, video, regionCode, type, today, rank);
+  });
+
+  console.log(`   ✅ 已寫入 ${filteredVideos.length} 筆 ${REGIONS[regionCode].name} ${type} 記錄`);
+}
+
+/**
+ * 📄 【簡化寫入】新增每日記錄
+ *
+ * v2.0 簡化版本：
+ * - 移除歷史欄位：viewHistory, likeHistory, commentHistory
+ * - 移除追蹤欄位：firstSeen, lastSeen, isTracking
+ * - 直接記錄當日快照數據
+ *
+ * @param {GoogleAppsScript.Spreadsheet.Sheet} sheet - 今日分頁
+ * @param {Object} video - 影片資料
+ * @param {string} regionCode - 地區代碼
+ * @param {string} type - 影片類型
+ * @param {string} today - 今日日期
+ * @param {number} rank - 排名
+ */
+function addDailyRecord(sheet, video, regionCode, type, today, rank) {
+  const hashtagsString = video.hashtags ? video.hashtags.join(',') : '';
+
+  const row = [
+    rank,                        // rank
+    video.videoId,               // videoId
+    video.title,                 // title
+    video.channelTitle,          // channelTitle
+    video.publishedAt,           // publishedAt
+    regionCode,                  // region
+    type,                        // type
+    today,                       // recordDate
+    video.url,                   // url
+    video.viewCount,             // viewCount (當日數值)
+    video.likeCount,             // likeCount (當日數值)
+    video.commentCount,          // commentCount (當日數值)
+    hashtagsString,              // hashtags
+    video.durationSeconds        // durationSeconds
+  ];
+
+  sheet.appendRow(row);
+}
+
+/**
+ * 🛠️ 【智能建立】只在分頁不存在時建立
+ *
+ * @param {GoogleAppsScript.Spreadsheet.Spreadsheet} spreadsheet - 月份檔案
+ * @param {string} sheetName - 分頁名稱（例："17", "01"）
+ * @return {GoogleAppsScript.Spreadsheet.Sheet} 分頁物件
+ */
+function createSheetIfNotExists(spreadsheet, sheetName) {
+  let sheet = spreadsheet.getSheetByName(sheetName);
+
+  if (!sheet) {
+    // 分頁不存在，建立新分頁
+    sheet = spreadsheet.insertSheet(sheetName);
+    console.log(`     📄 建立新分頁：${sheetName}`);
+  } else {
+    console.log(`     ✅ 分頁已存在：${sheetName}`);
+  }
+
+  // 總是確保標題行正確（修復舊分頁或確保新分頁有標題）
+  try {
+    const firstRow = sheet.getRange(1, 1, 1, COLUMNS.length).getValues()[0];
+    const hasCorrectHeaders = firstRow.every((header, index) => header === COLUMNS[index]);
+
+    if (!hasCorrectHeaders) {
+      // 標題行不正確或不存在，重新設定
+      sheet.getRange(1, 1, 1, COLUMNS.length).setValues([COLUMNS]);
+      sheet.getRange(1, 1, 1, COLUMNS.length).setFontWeight('bold').setBackground('#E8F0FE');
+      console.log(`     🔧 已修復標題行：${sheetName}`);
+    }
+  } catch (error) {
+    // 如果讀取失敗，直接設定標題行
+    sheet.getRange(1, 1, 1, COLUMNS.length).setValues([COLUMNS]);
+    sheet.getRange(1, 1, 1, COLUMNS.length).setFontWeight('bold').setBackground('#E8F0FE');
+    console.log(`     🆕 已設定標題行：${sheetName}`);
+  }
+
+  return sheet;
 }

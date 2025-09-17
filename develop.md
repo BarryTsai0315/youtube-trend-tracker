@@ -1,17 +1,129 @@
-# 🔧 進階開發指南
+# 🔧 進階開發指南 v2.0 - 階層檔案結構
 
-> 本文檔適合有程式開發經驗的開發者，提供詳細的技術細節、API 說明和系統架構說明。
+## 📚 v2.0 重點更新
 
-## 📚 目錄
+### 🏗 系統架構變更
 
-- [系統架構](#-系統架構)
-- [API 參數詳解](#-api-參數詳解)
-- [函數參考](#-函數參考)
-- [資料結構設計](#-資料結構設計)
-- [Linus Torvalds 重構說明](#-linus-torvalds-重構說明)
-- [錯誤處理機制](#-錯誤處理機制)
-- [效能優化](#-效能優化)
-- [開發環境設定](#-開發環境設定)
+**核心變更：**
+- **檔案結構**：從單一檔案改為階層檔案結構
+- **數據組織**：從歷史累積改為每日分頁快照
+- **邊界處理**：智能處理跨月、跨年邊界
+
+### 📊 新增核心函數
+
+#### `ensureTodayStructureExists(targetDate)`
+**智能結構檢查函數**
+
+```javascript
+/**
+ * 智能按需建立今日結構
+ * - 只建立今日+明日分頁
+ * - 自動處理跨月、跨年邊界
+ * - 重複執行時跳過已存在的結構
+ */
+function ensureTodayStructureExists(targetDate) {
+  // 處理三種邊界情況：
+  // 1. 同月：正常情況
+  // 2. 跨月：09/30 → 10/01
+  // 3. 跨年：12/31 → 01/01
+}
+```
+
+#### `trackRegionToDaily(sheet, regionCode, wantShorts, today)`
+**新版追蹤函數**
+
+```javascript
+/**
+ * v2.0 追蹤函數：直接寫入每日分頁
+ * - 不累積歷史數據
+ * - 每日重新排名
+ * - 簡化數據結構
+ */
+```
+
+#### `createSheetIfNotExists(spreadsheet, sheetName)`
+**智能分頁建立**
+
+```javascript
+/**
+ * 智能建立分頁
+ * - 檢查分頁是否存在
+ * - 確保標題行正確（14欄新結構）
+ * - 修復舊分頁標題行
+ */
+```
+
+### 📈 數據結構變更
+
+**v1.0 → v2.0 比較：**
+
+| 項目 | v1.0 | v2.0 |
+|------|------|------|
+| 檔案結構 | 單一檔案 | 階層結構 |
+| 數據組織 | 歷史累積 | 每日分頁 |
+| 欄位數量 | 16 欄 | 14 欄 |
+| 擴展性 | 200分頁限制 | 無限制 |
+| 維護成本 | 高 | 零維護 |
+
+**新 COLUMNS 結構（14 欄）：**
+```javascript
+const COLUMNS = [
+  'rank', 'videoId', 'title', 'channelTitle', 'publishedAt', 'region', 'type',
+  'recordDate', 'url', 'viewCount', 'likeCount', 'commentCount', 'hashtags', 'durationSeconds'
+];
+```
+
+### 🌐 地區擴展
+
+```javascript
+const REGIONS = {
+  'TW': { name: '台灣', query: '台灣 OR 繁體 OR 中文', lang: 'zh-Hant' },
+  'US': { name: '美國', query: 'trending OR viral OR popular', lang: 'en' },
+  'IN': { name: '印度', query: 'India OR Hindi OR trending', lang: 'hi' },
+  'BR': { name: '巴西', query: 'Brasil OR português OR viral', lang: 'pt' },
+  'ID': { name: '印尼', query: 'Indonesia OR trending OR populer', lang: 'id' },
+  'MX': { name: '墨西哥', query: 'Mexico OR español OR popular', lang: 'es' }
+};
+```
+
+### 🔄 邊界處理邏輯
+
+**三種邊界情況：**
+
+1. **同月邊界**（正常）
+   ```
+   2024/09/17 → 2024/09/18
+   ✅ 同一月份檔案，建立新分頁
+   ```
+
+2. **跨月邊界**
+   ```
+   2024/09/30 → 2024/10/01
+   ✅ 建立新月份檔案 + 新分頁
+   ```
+
+3. **跨年邊界**
+   ```
+   2024/12/31 → 2025/01/01
+   ✅ 建立新年份資料夾 + 新月份檔案 + 新分頁
+   ```
+
+### ⚡ 效能優化
+
+**按需建立策略：**
+- 第一次執行：建立今日+明日分頁
+- 重複執行：跳過已存在結構
+- 跨邊界：自動建立必要結構
+
+**API 配額管理：**
+- 6個地區 × 2類型 × 2步驟 = 24次API調用/日
+- 使用率：0.24%（YouTube免費額度10,000單位）
+
+---
+
+## 🏗 v1.0 系統架構（參考）
+
+### 核心組件
 
 ---
 
@@ -196,67 +308,72 @@ function getOrCreateTrackingSpreadsheet() { /* ... */ }
 
 ---
 
-## 🗄 資料結構設計
+## 🗄 v2.0 階層檔案結構設計
 
-### Linus Torvalds 設計哲學
+### 檔案組織架構
 
-> "Bad programmers worry about the code. Good programmers worry about data structures and their relationships."
-
-### 重構前後對比
-
-#### 舊設計（複雜的多工作表結構）
 ```
-📊 Google Sheet (6 個工作表)
-├── 美國熱門影片    │ 冗餘的資料結構
-├── 印度熱門影片    │ 相同邏輯的重複實現
-├── 台灣熱門影片    │
-├── 美國觀看紀錄    │ 複雜的資料同步邏輯
-├── 印度觀看紀錄    │
-└── 台灣觀看紀錄    │
+YouTube Analytics Data/
+├── 2024/
+│   ├── 2024-09 (每日分頁: 01, 02, ..., 30)
+│   ├── 2024-10 (每日分頁: 01, 02, ..., 31)
+│   └── ...
+├── 2025/
+│   ├── 2025-01
+│   └── ...
 ```
 
-#### 新設計（統一資料結構）
+### v1.0 → v2.0 結構對比
+
+#### v1.0 設計（單一檔案）
 ```
-📊 Google Sheet (1 個工作表)
-└── 影片追蹤資料    │ 統一的資料模型
-    ├── 影片 ID     │ 主鍵
-    ├── 地區        │ 索引欄位
-    ├── 標題        │
-    ├── 觀看次數    │
-    ├── 發布時間    │
-    ├── URL         │
-    ├── 首次記錄    │ 追蹤狀態
-    ├── 最後更新    │
-    └── 狀態        │ active/inactive
+📊 單一 Google Sheet
+├── 美國熱門影片    │ 混雜的歷史數據
+├── 印度熱門影片    │ 複雜的History欄位
+├── 台灣熱門影片    │ 200分頁限制
+└── 觀看記錄工作表  │ 維護困難
 ```
 
-### 核心資料結構
+#### v2.0 設計（階層檔案結構）
+```
+📁 YouTube Analytics Data/
+├── 📅 2024/
+│   ├── 📊 2024-09
+│   │   ├── 📋 01 (當日所有地區數據)
+│   │   ├── 📋 02
+│   │   └── 📋 ...
+│   └── 📊 2024-10
+└── 📅 2025/
+```
+
+### 每日分頁數據結構（14 欄）
 
 ```javascript
-const REGIONS = {
-  'US': {
-    name: '美國',
-    regionCode: 'US',
-    language: 'en-US'
-  },
-  'IN': {
-    name: '印度',
-    regionCode: 'IN',
-    language: 'hi-IN'
-  },
-  'TW': {
-    name: '台灣',
-    regionCode: 'TW',
-    language: 'zh-TW'
-  }
-};
+const COLUMNS = [
+  'rank',              // 排名（依地區類型分開）
+  'videoId',           // YouTube 影片 ID
+  'title',             // 影片標題
+  'channelTitle',      // 頻道名稱
+  'publishedAt',       // 發佈時間
+  'region',            // 地區（US/IN/TW/BR/ID/MX）
+  'type',              // 類型（videos/shorts）
+  'recordDate',        // 記錄日期
+  'url',               // YouTube 連結
+  'viewCount',         // 當日觀看數
+  'likeCount',         // 當日按讚數
+  'commentCount',      // 當日留言數
+  'hashtags',          // 提取的 hashtag
+  'durationSeconds'    // 影片長度（秒數）
+];
 ```
 
-**設計優勢：**
-1. **資料驅動**：新增地區只需修改 `REGIONS` 常數
-2. **消除重複**：所有地區使用相同的處理邏輯
-3. **易於維護**：單一真實來源（Single Source of Truth）
-4. **可擴展性**：輕鬆新增新地區或屬性
+### v2.0 設計優勢
+
+1. **永續運行**：永不觸及 Google Sheets 200分頁限制
+2. **智能建立**：只建立必要結構，自動處理邊界
+3. **清晰組織**：時間層次分明，便於數據分析
+4. **零維護**：可運行數年無人工干預
+5. **簡化數據**：移除複雜歷史累積，改為每日快照
 
 ---
 
@@ -573,4 +690,4 @@ function testGetTrendingFunction() {
 
 ---
 
-**最後更新：** 2025-09-16
+**最後更新：** 2025-09-17 - v2.0 階層檔案結構版
