@@ -162,36 +162,95 @@ const REGIONS = {
 
 ## 🌐 API 參數詳解
 
+### doGet() 參數傳遞機制
+
+在 Google Apps Script 中，`doGet()` 函數會自動接收 URL 參數並透過 `e.parameter` 物件傳遞：
+
+```javascript
+function doGet(e) {
+  // e.parameter 包含所有 URL 參數
+  const params = (e && e.parameter) || {};
+
+  // 取得參數的方式：
+  const region = params.region || 'TW';        // 預設台灣
+  const limit = parseInt(params.limit) || 10;  // 預設10筆
+  const shorts = params.shorts === 'true';     // 布林值轉換
+}
+```
+
 ### 基本 URL 格式
 
 ```
 https://script.google.com/macros/s/{SCRIPT_ID}/exec?param1=value1&param2=value2
 ```
 
-### 支援參數
+### v2.0 支援參數
 
-| 參數名稱 | 類型 | 預設值 | 說明 | 範例 |
-|---------|------|--------|------|------|
-| `region` | string | `TW` | 地區代碼 | `US`, `TW`, `IN`, `JP`, `KR` |
+| 參數名稱 | 類型 | 預設值 | 說明 | 範例值 |
+|---------|------|--------|------|--------|
+| `region` | string | `TW` | v2.0 地區代碼 | `TW`, `US`, `IN`, `BR`, `ID`, `MX` |
 | `limit` | number | `10` | 回傳影片數量 (1-50) | `20` |
-| `shorts` | boolean | `false` | 是否只搜尋短影片 | `true`, `false` |
-| `category` | string | `0` | 影片分類 ID | `10` (音樂), `20` (遊戲) |
-| `order` | string | `viewCount` | 排序方式 | `date`, `rating`, `relevance` |
+| `shorts` | boolean | `false` | 是否只查詢 Shorts | `true`, `false` |
+| `query` | string | 自動 | 搜尋關鍵字 | `music`, `gaming` |
+| `days` | number | `5` | 搜尋天數範圍 | `1`, `3`, `7` |
 
-### 地區代碼對照表
+### v2.0 地區代碼對照表
 
-| 代碼 | 地區 | 語言 | 時區 |
-|------|------|------|------|
-| `TW` | 台灣 | zh-TW | GMT+8 |
-| `US` | 美國 | en-US | GMT-5 to GMT-8 |
-| `IN` | 印度 | hi-IN / en-IN | GMT+5:30 |
-| `JP` | 日本 | ja-JP | GMT+9 |
-| `KR` | 韓國 | ko-KR | GMT+9 |
-| `GB` | 英國 | en-GB | GMT+0 |
-| `DE` | 德國 | de-DE | GMT+1 |
-| `FR` | 法國 | fr-FR | GMT+1 |
-| `BR` | 巴西 | pt-BR | GMT-3 |
-| `CA` | 加拿大 | en-CA / fr-CA | GMT-3.5 to GMT-8 |
+| 代碼 | 地區 | 語言 | 搜尋策略 |
+|------|------|------|----------|
+| `TW` | 台灣 | zh-Hant | `台灣 OR 繁體 OR 中文` |
+| `US` | 美國 | en | `trending OR viral OR popular` |
+| `IN` | 印度 | hi | `India OR Hindi OR trending` |
+| `BR` | 巴西 | pt | `Brasil OR português OR viral` |
+| `ID` | 印尼 | id | `Indonesia OR trending OR populer` |
+| `MX` | 墨西哥 | es | `Mexico OR español OR popular` |
+
+### 實際使用範例
+
+**1. 基本查詢台灣影片**
+```
+https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
+```
+
+**2. 查詢美國地區前20名**
+```
+https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec?region=US&limit=20
+```
+
+**3. 查詢印度 Shorts 短影片**
+```
+https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec?region=IN&shorts=true
+```
+
+**4. 查詢巴西音樂影片**
+```
+https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec?region=BR&limit=15&query=música
+```
+
+**5. 查詢墨西哥近3天影片**
+```
+https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec?region=MX&days=3&limit=25
+```
+
+### 測試 doGet() 函數
+
+在 Apps Script 編輯器中測試：
+
+```javascript
+function testDoGet() {
+  // 模擬 URL 參數
+  const mockEvent = {
+    parameter: {
+      region: 'US',
+      limit: '15',
+      shorts: 'true'
+    }
+  };
+
+  const result = doGet(mockEvent);
+  console.log(result.getContent());
+}
+```
 
 ### API 回應格式
 
