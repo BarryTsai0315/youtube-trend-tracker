@@ -1,0 +1,403 @@
+openapi: 3.0.0
+info:
+  title: YouTube Analytics API
+  description: Google Apps Script API for YouTube video analytics
+  version: 1.0.0
+  contact:
+    name: YouTube Analytics Team
+
+servers:
+  - url: https://script.google.com/macros/s/{DEPLOYMENT_ID}/exec
+    description: Google Apps Script deployment
+
+paths:
+  /getData:
+    get:
+      summary: 取得影片資料
+      description: 從 Google Sheets 讀取影片資料，支援多種篩選條件
+      parameters:
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [getData]
+        - name: dateFrom
+          in: query
+          description: 開始日期 (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          description: 結束日期 (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: channel
+          in: query
+          description: 頻道名稱篩選
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: 影片類別篩選
+          schema:
+            type: string
+        - name: minViews
+          in: query
+          description: 最少觀看數
+          schema:
+            type: integer
+            minimum: 0
+        - name: hashtag
+          in: query
+          description: 標籤篩選
+          schema:
+            type: string
+        - name: region
+          in: query
+          description: 地區篩選
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功回傳影片資料
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: JSON 字串格式的回應
+                example: '{"success":true,"data":[...],"total":1250}'
+        '400':
+          description: 請求參數錯誤
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 伺服器內部錯誤
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /getTrends:
+    get:
+      summary: 取得趨勢分析資料
+      description: 取得影片觀看數、按讚數、留言數的七天趨勢變化
+      parameters:
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [getTrends]
+        - name: videoIds
+          in: query
+          description: 影片 ID 陣列（逗號分隔）
+          schema:
+            type: string
+            example: "video1,video2,video3"
+        - name: period
+          in: query
+          description: 時間周期
+          schema:
+            type: string
+            enum: [7d, 30d, 90d]
+            default: 7d
+        - name: metric
+          in: query
+          description: 指標類型
+          schema:
+            type: string
+            enum: [views, likes, comments, all]
+            default: all
+      responses:
+        '200':
+          description: 成功回傳趨勢資料
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /getHashtags:
+    get:
+      summary: 取得標籤統計資料
+      description: 取得熱門標籤使用統計和排名
+      parameters:
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [getHashtags]
+        - name: limit
+          in: query
+          description: 回傳數量限制
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: sortBy
+          in: query
+          description: 排序依據
+          schema:
+            type: string
+            enum: [usage, views, trend]
+            default: usage
+        - name: lifecycle
+          in: query
+          description: 生命週期篩選
+          schema:
+            type: string
+            enum: [emerging, trending, stable, declining]
+      responses:
+        '200':
+          description: 成功回傳標籤統計
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /getChannels:
+    get:
+      summary: 取得頻道排行資料
+      description: 取得頻道效能排行和比較資料
+      parameters:
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [getChannels]
+        - name: limit
+          in: query
+          description: 回傳數量限制
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+        - name: sortBy
+          in: query
+          description: 排序依據
+          schema:
+            type: string
+            enum: [views, engagement, growth, subscribers]
+            default: views
+        - name: period
+          in: query
+          description: 統計期間
+          schema:
+            type: string
+            enum: [7d, 30d, 90d]
+            default: 30d
+      responses:
+        '200':
+          description: 成功回傳頻道排行
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /getWordCloud:
+    get:
+      summary: 取得文字雲資料
+      description: 分析影片標題關鍵字並回傳文字雲資料
+      parameters:
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [getWordCloud]
+        - name: dateFrom
+          in: query
+          description: 開始日期
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          description: 結束日期
+          schema:
+            type: string
+            format: date
+        - name: channel
+          in: query
+          description: 頻道篩選
+          schema:
+            type: string
+        - name: maxWords
+          in: query
+          description: 最大字詞數量
+          schema:
+            type: integer
+            minimum: 10
+            maximum: 200
+            default: 100
+      responses:
+        '200':
+          description: 成功回傳文字雲資料
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /getEngagement:
+    get:
+      summary: 取得互動率分析
+      description: 計算並回傳影片互動率相關指標
+      parameters:
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [getEngagement]
+        - name: videoIds
+          in: query
+          description: 影片 ID 陣列
+          schema:
+            type: string
+        - name: includeViral
+          in: query
+          description: 包含病毒傳播指標
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: 成功回傳互動率資料
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  schemas:
+    ErrorResponse:
+      type: string
+      description: JSON 格式的錯誤回應
+      example: '{"success":false,"error":"參數錯誤","details":"dateFrom 格式不正確"}'
+
+    VideoData:
+      type: object
+      description: 影片資料結構
+      properties:
+        id:
+          type: string
+          description: 影片 ID
+        title:
+          type: string
+          description: 影片標題
+        channelName:
+          type: string
+          description: 頻道名稱
+        publishedAt:
+          type: string
+          format: date-time
+          description: 發布時間
+        viewCount:
+          type: integer
+          description: 觀看次數
+        likeCount:
+          type: integer
+          description: 按讚數
+        commentCount:
+          type: integer
+          description: 留言數
+        tags:
+          type: array
+          items:
+            type: string
+          description: 標籤陣列
+        thumbnailUrl:
+          type: string
+          description: 縮圖 URL
+      required:
+        - id
+        - title
+        - channelName
+        - publishedAt
+        - viewCount
+
+    TrendData:
+      type: object
+      description: 趨勢資料結構
+      properties:
+        videoId:
+          type: string
+          description: 影片 ID
+        metric:
+          type: string
+          enum: [views, likes, comments]
+          description: 指標類型
+        timeSeries:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              value:
+                type: integer
+              growthRate:
+                type: number
+                description: 成長率 (%)
+          description: 時間序列資料
+
+    HashtagData:
+      type: object
+      description: 標籤統計資料
+      properties:
+        name:
+          type: string
+          description: 標籤名稱
+        usageCount:
+          type: integer
+          description: 使用次數
+        totalViews:
+          type: integer
+          description: 相關影片總觀看數
+        avgViews:
+          type: number
+          description: 平均觀看數
+        lifecycle:
+          type: string
+          enum: [emerging, trending, stable, declining]
+          description: 生命週期階段
+        trendScore:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: 趨勢分數
+
+    ChannelData:
+      type: object
+      description: 頻道統計資料
+      properties:
+        id:
+          type: string
+          description: 頻道 ID
+        name:
+          type: string
+          description: 頻道名稱
+        subscriberCount:
+          type: integer
+          description: 訂閱者數量
+        totalViews:
+          type: integer
+          description: 總觀看數
+        videoCount:
+          type: integer
+          description: 影片數量
+        avgEngagement:
+          type: number
+          description: 平均互動率
+        growthRate:
+          type: number
+          description: 成長率 (%)
