@@ -1,26 +1,35 @@
-# YouTube 熱門影片追蹤系統 v2.0 - 階層檔案結構
+# YouTube 熱門影片追蹤與分析系統 v3.0 - Web 分析工具
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Google Apps Script](https://img.shields.io/badge/Google%20Apps%20Script-4285F4?logo=google&logoColor=white)](https://script.google.com/)
 [![YouTube Data API](https://img.shields.io/badge/YouTube%20Data%20API-FF0000?logo=youtube&logoColor=white)](https://developers.google.com/youtube/v3)
+[![Web Analytics](https://img.shields.io/badge/Web%20Analytics-ea2a33?logo=chart.js&logoColor=white)](https://chart.js.org/)
 
 ## 📋 專案簡介
 
-這是一個基於 Google Apps Script 的 YouTube 影片搜尋和追蹤系統，採用 **Linus Torvalds 的設計哲學** 重構，實現 **v2.0 階層檔案結構**：
+這是一個完整的 YouTube 影片追蹤與分析系統，採用 **Linus Torvalds 的設計哲學** 開發，包含 **後端數據收集** 和 **前端分析工具**：
 
+### 🎯 後端數據收集系統
 - 📁 **階層檔案結構**：YouTube Analytics Data/年份/月份檔案/每日分頁
 - 🚀 **智能按需建立**：只建立今日+明日分頁，自動處理跨月、跨年
 - 📊 **每日數據快照**：不累積歷史，每日分頁直接記錄當日數據
 - 🎬 **智能分類**：基於實際長度判斷 Shorts（≤60秒）vs 一般影片
 - 🌐 **多地區追蹤**：美國、印度、台灣、巴西、印尼、墨西哥六個地區
-- 🔍 **Web API**：提供 RESTful API 供第三方應用程式使用
+- 🔍 **Web API**：提供 RESTful API 供前端應用使用
 - ⚡ **永續運行**：永不觸及 Google Sheets 限制，可運行數年無人工干預
+
+### 🖥️ 前端 Web 分析工具
+- 📺 **影片搜尋頁面**：支援多維度篩選的影片列表瀏覽
+- 📊 **Hashtag 統計分析**：圓餅圖、長條圖等視覺化統計圖表
+- ☁️ **標題文字雲分析**：智能分詞與關鍵詞頻率分析
+- 🎨 **現代化 UI**：暗色主題、響應式設計、流暢動畫效果
+- 🔄 **即時切換**：三個分析頁面間無縫導航切換
 
 ---
 
 ## 🚀 立即開始
 
-### 🌟 新手一鍵設置
+### 🌟 後端數據收集設置
 
 如果您是第一次使用，只需要執行一個函數：
 
@@ -45,9 +54,94 @@
 
 **每日執行時會自動建立今日分頁，資料直接寫入對應的日期分頁中！**
 
+### 🖥️ Web 分析工具使用
+
+#### 🌐 方式 1：GitHub Pages 在線使用 (推薦)
+
+**立即在線使用，無需下載：**
+
+1. **訪問主頁**：開啟 [https://您的用戶名.github.io/youtube-trend-tracker](https://您的用戶名.github.io/youtube-trend-tracker)
+2. **選擇分析工具**：在主頁中選擇您需要的分析工具
+3. **開始分析**：點擊對應按鈕直接進入分析頁面
+
+**三大分析工具在線版本：**
+- 📺 **影片搜尋分析**：[video-search.html](https://您的用戶名.github.io/youtube-trend-tracker/video-search.html)
+- 📊 **Hashtag 統計分析**：[hashtag-analytics.html](https://您的用戶名.github.io/youtube-trend-tracker/hashtag-analytics.html)
+- ☁️ **標題文字雲分析**：[title-wordcloud.html](https://您的用戶名.github.io/youtube-trend-tracker/title-wordcloud.html)
+
+> **💡 GitHub Pages 部署提示**：將專案上傳到 GitHub 並啟用 Pages 功能即可獲得專屬網址
+
+#### 💻 方式 2：本地檔案使用
+
+數據收集完成後，下載並開啟本地 HTML 檔案：
+
+#### 📺 影片搜尋分析
+開啟 `video-search.html`：
+- 🔍 多維度篩選：地區、類型、關鍵字、觀看數範圍
+- 📱 響應式網格：最多5列影片卡片展示
+- ⚡ 即時搜尋：輸入關鍵字立即篩選結果
+- 🎬 影片預覽：hover 顯示播放按鈕，點擊跳轉 YouTube
+
+#### 📊 Hashtag 統計分析
+開啟 `hashtag-analytics.html`：
+- 📈 視覺化圖表：圓餅圖、長條圖、環圈圖可切換
+- 🏆 排行榜：按使用次數或觀看數排序
+- 🎯 篩選選項：時間範圍、地區、類型多維篩選
+- 📋 詳細資料表格：完整統計數據一覽
+
+#### ☁️ 標題文字雲分析
+開啟 `title-wordcloud.html`：
+- 🌀 智能文字雲：動態字體大小和顏色
+- 🧠 中英文分詞：自動識別並過濾停用詞
+- 📊 雙排行榜：頻率排行 + 觀看數排行
+- 🔍 關鍵詞點擊：查看包含該詞的所有影片
+
 ---
 
 ## 📈 版本更新歷史
+
+### 🌟 v3.0.0 - Web 分析工具 (2025-09-18)
+
+**🎨 全新 Web 前端分析工具 - 完整視覺化分析平台**
+
+> *"簡潔直接的用戶體驗，解決實際分析需求"* - Linus 式產品設計實踐
+
+#### ✨ 三大分析頁面
+
+**📺 影片搜尋頁面 (`src/youtube-search.html`)**
+- 🏗️ 現代化暗色主題設計，支援 5 列響應式網格
+- 🔍 多維度即時篩選：地區、類型、關鍵字、觀看數範圍
+- 🎬 精美影片卡片：縮圖、標題、統計數據、hashtags 一覽
+- ⚡ 流暢 hover 效果和載入動畫
+
+**📊 Hashtag 統計分析 (`src/hashtag-analytics.html`)**
+- 📈 Chart.js 視覺化圖表：圓餅圖、長條圖、環圈圖可切換
+- 🏆 雙重排行榜：使用頻率排行 + 總觀看數排行
+- 🎯 豐富篩選選項：時間範圍、地區、類型、排序方式
+- 📋 詳細資料表格：完整統計數據和百分比分析
+
+**☁️ 標題文字雲分析 (`src/title-wordcloud.html`)**
+- 🌀 動態文字雲：智能字體大小、顏色漸變、旋轉效果
+- 🧠 中英文智能分詞：停用詞過濾、可調整最小字數
+- 📊 雙排行榜系統：頻率排行 + 觀看數排行
+- 🔍 關鍵詞互動：點擊查看包含該詞的所有影片
+
+#### 🛠️ 技術特色
+
+- **🎨 統一設計語言**：三個頁面採用一致的暗色主題和交互設計
+- **🔄 無縫導航**：頂部導航列支援頁面間快速切換
+- **📱 響應式設計**：完美適配桌面和行動裝置
+- **⚡ 原生性能**：純 HTML/CSS/JS，無需框架，載入快速
+- **🔗 API 整合**：統一使用 Google Apps Script API 作為數據來源
+
+#### 📁 檔案結構
+
+```
+src/
+├── youtube-search.html      # 影片搜尋頁面
+├── hashtag-analytics.html   # Hashtag 統計分析
+└── title-wordcloud.html     # 標題文字雲分析
+```
 
 ### 🎯 v2.0.0 - 階層檔案結構 (2025-09-17)
 
@@ -130,16 +224,18 @@ YouTube Analytics Data/
 
 ## 🔄 版本功能比較
 
-| 功能項目               | v1.0.0 舊版  | v2.0.0 新版 ⭐  |
-| ---------------------- | ------------ | --------------- |
-| **檔案結構**     | 🔴 單一檔案  | ✅ 階層結構     |
-| **數據組織**     | 🔴 混雜累積  | ✅ 每日分頁     |
-| **擴展性**       | 🔴 有限制    | ✅ 無限制       |
-| **邊界處理**     | 🔴 手動      | ✅ 自動智能     |
-| **數據欄位**     | 16 欄複雜    | 14 欄簡化       |
-| **執行效率**     | 🔴 重複建立  | ✅ 按需建立     |
-| **維護成本**     | 🔴 高        | ✅ 零維護       |
-| **跨時間查詢**   | 🔴 困難      | ✅ 直觀分頁     |
+| 功能項目               | v1.0.0 舊版  | v2.0.0 新版  | v3.0.0 最新 ⭐  |
+| ---------------------- | ------------ | ------------ | --------------- |
+| **檔案結構**     | 🔴 單一檔案  | ✅ 階層結構  | ✅ 階層結構     |
+| **數據組織**     | 🔴 混雜累積  | ✅ 每日分頁  | ✅ 每日分頁     |
+| **前端工具**     | ❌ 無        | ❌ 無        | ✅ 三頁面分析   |
+| **視覺化分析**   | ❌ 無        | ❌ 無        | ✅ 圖表+文字雲  |
+| **用戶體驗**     | 🔴 命令行    | 🔴 命令行    | ✅ Web 界面     |
+| **即時篩選**     | ❌ 無        | ❌ 無        | ✅ 多維篩選     |
+| **數據可視化**   | 🔴 原始表格  | 🔴 原始表格  | ✅ 互動式圖表   |
+| **響應式設計**   | ❌ 無        | ❌ 無        | ✅ 全設備支援   |
+| **邊界處理**     | 🔴 手動      | ✅ 自動智能  | ✅ 自動智能     |
+| **維護成本**     | 🔴 高        | ✅ 零維護    | ✅ 零維護       |
 
 ---
 
@@ -206,31 +302,141 @@ const SHORTS_DURATION_LIMIT = 60;   // Shorts 長度閾值（秒）
 
 ---
 
+## 🌐 GitHub Pages 部署指南
+
+### 📦 快速部署到 GitHub Pages
+
+#### 步驟 1：準備 GitHub 儲存庫
+
+1. **建立新儲存庫**：
+   ```bash
+   # 在 GitHub 上建立名為 youtube-trend-tracker 的新儲存庫
+   ```
+
+2. **上傳專案檔案**：
+   ```bash
+   git clone https://github.com/您的用戶名/youtube-trend-tracker.git
+   cd youtube-trend-tracker
+
+   # 複製專案檔案到儲存庫
+   # 確保以下檔案在根目錄：
+   # - index.html (主頁)
+   # - video-search.html (影片搜尋分析)
+   # - hashtag-analytics.html (Hashtag 統計分析)
+   # - title-wordcloud.html (標題文字雲分析)
+   # - docs/ 目錄（包含所有 .md 文檔）
+   ```
+
+#### 步驟 2：啟用 GitHub Pages
+
+1. **進入儲存庫設定**：
+   - 前往您的 GitHub 儲存庫頁面
+   - 點擊 "Settings" 頁籤
+
+2. **配置 Pages 設定**：
+   - 在左側選單找到 "Pages"
+   - Source 選擇 "Deploy from a branch"
+   - Branch 選擇 "main" (或 "master")
+   - Folder 選擇 "/ (root)"
+   - 點擊 "Save"
+
+3. **取得您的網站網址**：
+   - GitHub 會顯示您的網站網址：`https://您的用戶名.github.io/youtube-trend-tracker`
+   - 通常需要等待 5-10 分鐘網站才會生效
+
+#### 步驟 3：配置 API 連接
+
+在每個 HTML 檔案中，確保已正確設定 Google Apps Script API URL：
+
+```javascript
+// 在每個 HTML 檔案的 JavaScript 部分
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/您的SCRIPT_ID/exec';
+```
+
+### 🔧 部署檔案結構
+
+GitHub Pages 部署後的檔案結構：
+
+```
+您的用戶名.github.io/youtube-trend-tracker/
+├── index.html                 # 主頁入口 🏠
+├── video-search.html          # 影片搜尋分析 📺
+├── hashtag-analytics.html     # Hashtag 統計分析 📊
+├── title-wordcloud.html       # 標題文字雲分析 ☁️
+├── docs/                      # 文檔目錄 📚
+│   ├── beginner.md           # 新手指南
+│   ├── develop.md            # 開發文檔
+│   ├── CHANGELOG.md          # 更新記錄
+│   └── todo-list.md          # 待辦清單
+└── README.md                  # 專案說明
+```
+
+### 🌟 使用您的在線分析平台
+
+部署完成後，您可以透過以下網址使用分析工具：
+
+- **🏠 主頁**：`https://您的用戶名.github.io/youtube-trend-tracker/`
+- **📺 影片搜尋**：`https://您的用戶名.github.io/youtube-trend-tracker/video-search.html`
+- **📊 Hashtag 分析**：`https://您的用戶名.github.io/youtube-trend-tracker/hashtag-analytics.html`
+- **☁️ 文字雲分析**：`https://您的用戶名.github.io/youtube-trend-tracker/title-wordcloud.html`
+
+### 📱 優勢特色
+
+✅ **零服務器成本**：完全免費的 GitHub Pages 託管
+✅ **全球 CDN**：GitHub 提供的高速內容分發網路
+✅ **HTTPS 安全**：自動提供 SSL 證書
+✅ **響應式設計**：完美支援桌面、平板、手機
+✅ **即時更新**：推送代碼後自動更新網站
+✅ **自訂域名**：可配置個人域名
+
+### 🔄 更新和維護
+
+當您需要更新分析工具時：
+
+```bash
+# 在本地修改檔案後
+git add .
+git commit -m "更新分析工具功能"
+git push origin main
+
+# GitHub Pages 會自動重新部署（通常 1-5 分鐘）
+```
+
+---
+
 ## 🎯 使用場景
 
 ### 📈 數據分析師
-- 追蹤不同地區的影片趨勢
-- 分析 Shorts vs 一般影片的表現
-- 研究按讚率和留言率變化
+- **🔍 深度趨勢分析**：使用 Web 工具進行多維度數據探索
+- **📊 視覺化報告**：Hashtag 統計圖表和標題關鍵詞分析
+- **⏰ 時間序列分析**：追蹤不同時間段的內容趨勢變化
+- **🌐 跨地區比較**：分析不同地區的內容偏好差異
 
 ### 🎬 內容創作者
-- 了解各地區熱門內容類型
-- 分析成功影片的長度分布
-- 追蹤 hashtag 趨勢
+- **🎯 內容策略優化**：透過熱門關鍵詞文字雲發現內容機會
+- **📱 Shorts vs 長影片**：分析不同內容格式的表現差異
+- **🏷️ Hashtag 策略**：使用統計工具選擇最有效的標籤
+- **🎨 視覺化儀表板**：一目了然的數據呈現，快速決策
 
-### 📊 市場研究
-- 跨地區內容偏好分析
-- 影片互動模式研究
-- 趨勢預測和分析
+### 📊 市場研究與學術研究
+- **🔬 學術研究工具**：完整的數據收集和分析工具鏈
+- **📈 市場趨勢報告**：生成專業的視覺化分析報告
+- **🧠 內容語義分析**：標題文字雲揭示內容主題趨勢
+- **📋 競品分析**：追蹤競爭對手的內容策略變化
+
+### 🎨 產品經理與設計師
+- **💡 靈感發現**：透過趨勢分析發現產品設計靈感
+- **👥 用戶行為研究**：分析不同地區用戶的內容偏好
+- **🎪 營銷策略**：基於數據制定精準的營銷內容策略
 
 ---
 
 ## 📞 維護信息
 
-**當前版本：** v2.0.0 - 階層檔案結構
-**最後更新：** 2025-09-17
+**當前版本：** v3.0.0 - Web 分析工具
+**最後更新：** 2025-09-18
 **維護狀態：** 🟢 積極維護
-**代碼品質：** 🟢 優秀（智能 + 永續運行）
+**代碼品質：** 🟢 優秀（後端：智能 + 永續運行，前端：現代化 + 響應式）
 
 ### 設計哲學
 

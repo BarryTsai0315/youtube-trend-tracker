@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans+TC:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;700;800" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <title>YouTube 趨勢追蹤分析平台 v3.0</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+        :root {
+            --primary-color: #ea2a33;
+            --secondary-color: #3b82f6;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        .feature-icon {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Header -->
+    <header class="hero-gradient py-16">
+        <div class="container mx-auto px-6 text-center">
+            <div class="mb-8">
+                <h1 class="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                    YouTube 趨勢追蹤分析平台
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-300 mb-2">v3.0 Web 分析工具平台</p>
+                <p class="text-lg text-gray-400 max-w-3xl mx-auto">
+                    深度分析 YouTube 熱門影片趨勢，提供影片搜尋、Hashtag 統計和標題文字雲三大專業分析工具
+                </p>
+            </div>
+
+            <!-- Version Badge -->
+            <div class="inline-flex items-center px-6 py-3 bg-blue-600 rounded-full text-white font-medium mb-8">
+                <span class="material-symbols-outlined mr-2">new_releases</span>
+                v3.0.0 正式版 - 2025年9月18日發布
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation -->
+    <section class="py-16 bg-gray-800">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12">選擇分析工具</h2>
+
+            <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- Video Search Tool -->
+                <div class="bg-gray-700 rounded-xl p-8 card-hover">
+                    <div class="feature-icon w-16 h-16 rounded-full flex items-center justify-center mb-6 mx-auto">
+                        <span class="material-symbols-outlined text-white text-2xl">search</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-center mb-4">影片搜尋分析</h3>
+                    <p class="text-gray-300 text-center mb-6 leading-relaxed">
+                        響應式影片網格展示，支援多維度即時篩選：地區、類型、觀看數範圍、關鍵字搜尋
+                    </p>
+                    <div class="space-y-2 mb-6">
+                        <div class="flex items-center text-sm text-gray-400">
+                            <span class="material-symbols-outlined text-green-400 mr-2">check</span>
+                            5 列響應式網格佈局
+                        </div>
+                        <div class="flex items-center text-sm text-gray-400">
+                            <span class="material-symbols-outlined text-green-400 mr-2">check</span>
+                            多維度即時篩選
+                        </div>
+                        <div class="flex items-center text-sm text-gray-400">
+                            <span class="material-symbols-outlined text-green-400 mr-2">check</span>
+                            YouTube 縮圖整合
+                        </div>
+                    </div>
+                    <a href="video-search.html" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg text-center transition-colors">
+                        開始分析
+                    </a>
+                </div>
+
+                <!-- Hashtag Analytics Tool -->
+                <div class="bg-gray-700 rounded-xl p-8 card-hover">
+                    <div class="feature-icon w-16 h-16 rounded-full flex items-center justify-center mb-6 mx-auto">
+                        <span class="material-symbols-outlined text-white text-2xl">tag</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-center mb-4">Hashtag 統計分析</h3>
+                    <p class="text-gray-300 text-center mb-6 leading-relaxed">
+                        Chart.js 專業視覺化圖表，雙重排行榜系統，深度分析 hashtag 使用趨勢
+                    </p>
+                    <div class="space-y-2 mb-6">
+                        <div class="flex items-center text-sm text-gray-400">
+                            <span class="material-symbols-outlined text-green-400 mr-2">check</span>
+                            圓餅圖、長條圖、環圈圖
+                        </div>
+                        <div class="flex items-center text-sm text-gray-400">
+                            <span class="material-symbols-outlined text-green-400 mr-2">check</span>
+                            雙重排行榜系統
+                        </div>
+                        <div class="flex items-center text-sm text-gray-400">
+                            <span class="material-symbols-outlined text-green-400 mr-2">check</span>
+                            詳細統計數據表格
+                        </div>
+                    </div>
+                    <a href="hashtag-analytics.html" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg text-center transition-colors">
+                        開始分析
+                    </a>
+                </div>
+
+                <!-- Word Cloud Tool -->
+                <div class="bg-gray-700 rounded-xl p-8 card-hover">
+                    <div class="feature-icon w-16 h-16 rounded-full flex items-center justify-center mb-6 mx-auto">
+                        <span class="material-symbols-outlined text-white text-2xl">cloud</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-center mb-4">標題文字雲分析</h3>
+                    <p class="text-gray-300 text-center mb-6 leading-relaxed">
+                        智能中英文分詞，動態文字雲渲染，互動式關鍵詞分析，發現熱門話題趨勢
+                    </p>
+                    <div class="space-y-2 mb-6">
+                        <div class="flex items-center text-sm text-gray-400">
+                            <span class="material-symbols-outlined text-green-400 mr-2">check</span>
+                            智能中英文分詞
+                        </div>
+                        <div class="flex items-center text-sm text-gray-400">
+                            <span class="material-symbols-outlined text-green-400 mr-2">check</span>
+                            動態文字雲渲染
+                        </div>
+                        <div class="flex items-center text-sm text-gray-400">
+                            <span class="material-symbols-outlined text-green-400 mr-2">check</span>
+                            互動式關鍵詞點擊
+                        </div>
+                    </div>
+                    <a href="title-wordcloud.html" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg text-center transition-colors">
+                        開始分析
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-16 bg-gray-900">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12">v3.0 平台特色</h2>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="bg-gradient-to-br from-blue-500 to-purple-600 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="material-symbols-outlined text-white">speed</span>
+                    </div>
+                    <h3 class="font-bold mb-2">原生性能</h3>
+                    <p class="text-gray-400 text-sm">純 HTML/CSS/JS，無框架依賴，載入迅速</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="bg-gradient-to-br from-green-500 to-teal-600 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="material-symbols-outlined text-white">devices</span>
+                    </div>
+                    <h3 class="font-bold mb-2">完全響應式</h3>
+                    <p class="text-gray-400 text-sm">完美適配桌面、平板、手機裝置</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="bg-gradient-to-br from-yellow-500 to-orange-600 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="material-symbols-outlined text-white">analytics</span>
+                    </div>
+                    <h3 class="font-bold mb-2">智能分析</h3>
+                    <p class="text-gray-400 text-sm">中英文混合分詞，多維度深度分析</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="bg-gradient-to-br from-red-500 to-pink-600 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="material-symbols-outlined text-white">auto_graph</span>
+                    </div>
+                    <h3 class="font-bold mb-2">專業視覺化</h3>
+                    <p class="text-gray-400 text-sm">Chart.js 圖表庫，Material Design 設計</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Coverage -->
+    <section class="py-16 bg-gray-800">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12">數據覆蓋範圍</h2>
+
+            <div class="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+                <div>
+                    <h3 class="text-xl font-bold mb-6 flex items-center">
+                        <span class="material-symbols-outlined text-blue-400 mr-2">public</span>
+                        追蹤地區 (6個)
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <div class="text-lg font-bold">🇺🇸 美國</div>
+                            <div class="text-sm text-gray-400">全球最大市場</div>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <div class="text-lg font-bold">🇮🇳 印度</div>
+                            <div class="text-sm text-gray-400">人口最多市場</div>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <div class="text-lg font-bold">🇹🇼 台灣</div>
+                            <div class="text-sm text-gray-400">繁體中文市場</div>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <div class="text-lg font-bold">🇧🇷 巴西</div>
+                            <div class="text-sm text-gray-400">南美最大市場</div>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <div class="text-lg font-bold">🇮🇩 印尼</div>
+                            <div class="text-sm text-gray-400">東南亞最大市場</div>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <div class="text-lg font-bold">🇲🇽 墨西哥</div>
+                            <div class="text-sm text-gray-400">西語市場代表</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-6 flex items-center">
+                        <span class="material-symbols-outlined text-blue-400 mr-2">video_library</span>
+                        分析內容
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <div class="font-bold mb-2">📊 數據類型</div>
+                            <div class="text-sm text-gray-400">觀看數、按讚數、留言數、hashtags、影片長度</div>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <div class="font-bold mb-2">🎬 影片分類</div>
+                            <div class="text-sm text-gray-400">一般影片 (>60秒) + Shorts 短影片 (≤60秒)</div>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <div class="font-bold mb-2">📈 追蹤範圍</div>
+                            <div class="text-sm text-gray-400">每個地區類型前 20 名，總計 240 個熱門影片</div>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <div class="font-bold mb-2">⏰ 更新頻率</div>
+                            <div class="text-sm text-gray-400">每日自動更新，階層檔案結構永續運行</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation -->
+    <section class="py-16 bg-gray-900">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold mb-8">完整文檔和資源</h2>
+            <p class="text-gray-400 mb-12 max-w-2xl mx-auto">
+                從新手教學到進階開發，提供完整的文檔支援
+            </p>
+
+            <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <a href="docs/beginner.md" class="bg-gray-800 hover:bg-gray-700 p-6 rounded-lg transition-colors text-left">
+                    <div class="flex items-center mb-4">
+                        <span class="material-symbols-outlined text-green-400 mr-3">school</span>
+                        <h3 class="font-bold">新手教學</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm">完整的設置指南和使用教學</p>
+                </a>
+
+                <a href="docs/develop.md" class="bg-gray-800 hover:bg-gray-700 p-6 rounded-lg transition-colors text-left">
+                    <div class="flex items-center mb-4">
+                        <span class="material-symbols-outlined text-blue-400 mr-3">code</span>
+                        <h3 class="font-bold">開發文檔</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm">技術架構和開發指南</p>
+                </a>
+
+                <a href="docs/CHANGELOG.md" class="bg-gray-800 hover:bg-gray-700 p-6 rounded-lg transition-colors text-left">
+                    <div class="flex items-center mb-4">
+                        <span class="material-symbols-outlined text-yellow-400 mr-3">history</span>
+                        <h3 class="font-bold">更新記錄</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm">詳細的版本更新記錄</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 py-8 border-t border-gray-700">
+        <div class="container mx-auto px-6 text-center">
+            <div class="mb-4">
+                <h3 class="text-xl font-bold mb-2">YouTube 趨勢追蹤分析平台</h3>
+                <p class="text-gray-400">v3.0.0 Web 分析工具平台版</p>
+            </div>
+            <div class="text-sm text-gray-500">
+                <p>最後更新：2025-09-18 | 技術支援：AI Assistant (Claude)</p>
+                <p class="mt-2">🚀 Production Ready | 零框架依賴 | 完全響應式設計</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8"/>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans+TC:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;700;800" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <title>Hashtag 趨勢分析</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style type="text/tailwindcss">
+        :root {
+            --primary-color: #ea2a33;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+        }
+        .loading {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <div class="flex h-full grow flex-col">
+            <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-800 px-10 py-4">
+                <div class="flex items-center gap-4 text-white">
+                    <svg class="h-8 w-8 text-[var(--primary-color)]" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 15.65v-7.3L16.03 12M22 12c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2s10 4.48 10 10zM4 12c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8-8 3.58-8 8z"></path>
+                    </svg>
+                    <h1 class="text-xl font-bold tracking-tight">Hashtag 趨勢分析</h1>
+                </div>
+
+                <div class="flex items-center gap-6">
+                    <!-- 導航按鈕 -->
+                    <div class="flex items-center gap-2">
+                        <a href="youtube-search.html" class="px-4 py-2 rounded-lg bg-gray-700 text-gray-300 font-medium hover:bg-gray-600 hover:text-white transition-colors">
+                            <span class="material-symbols-outlined text-sm mr-1">video_library</span>
+                            影片搜尋
+                        </a>
+                        <a href="hashtag-analytics.html" class="px-4 py-2 rounded-lg bg-[var(--primary-color)] text-white font-medium hover:bg-red-700 transition-colors">
+                            <span class="material-symbols-outlined text-sm mr-1">analytics</span>
+                            Hashtag 統計
+                        </a>
+                        <a href="title-wordcloud.html" class="px-4 py-2 rounded-lg bg-gray-700 text-gray-300 font-medium hover:bg-gray-600 hover:text-white transition-colors">
+                            <span class="material-symbols-outlined text-sm mr-1">cloud</span>
+                            標題文字雲
+                        </a>
+                    </div>
+
+                    <!-- 資料狀態和操作 -->
+                    <div class="flex items-center gap-4">
+                        <span id="dataCount" class="text-sm text-gray-400">載入中...</span>
+                        <button id="refreshBtn" class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white">
+                            <span class="material-symbols-outlined">refresh</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 px-4 py-8 sm:px-6 lg:px-8">
+                <div class="mx-auto max-w-7xl">
+                    <!-- 控制面板 -->
+                    <div class="mb-8 rounded-lg bg-gray-800/50 p-6 shadow-lg">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-bold tracking-tight text-white">統計設定</h2>
+                            <div class="flex items-center gap-4">
+                                <select id="sortBy" class="rounded-md border-gray-700 bg-gray-800 text-white focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]">
+                                    <option value="count">按使用次數排序</option>
+                                    <option value="views">按總觀看數排序</option>
+                                </select>
+                                <select id="topCount" class="rounded-md border-gray-700 bg-gray-800 text-white focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]">
+                                    <option value="10">前 10 名</option>
+                                    <option value="20">前 20 名</option>
+                                    <option value="50">前 50 名</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            <div class="flex flex-col">
+                                <label class="mb-2 text-sm font-medium text-gray-300">圖表類型</label>
+                                <div class="flex rounded-lg bg-gray-700 p-1">
+                                    <button id="chartTypePie" class="flex-1 px-3 py-2 rounded text-sm font-medium bg-[var(--primary-color)] text-white">
+                                        圓餅圖
+                                    </button>
+                                    <button id="chartTypeBar" class="flex-1 px-3 py-2 rounded text-sm font-medium text-gray-400 hover:text-white">
+                                        長條圖
+                                    </button>
+                                    <button id="chartTypeDoughnut" class="flex-1 px-3 py-2 rounded text-sm font-medium text-gray-400 hover:text-white">
+                                        環圈圖
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col">
+                                <label class="mb-2 text-sm font-medium text-gray-300">時間範圍</label>
+                                <select id="timeRange" class="rounded-md border-gray-700 bg-gray-800 text-white focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]">
+                                    <option value="all">全部時間</option>
+                                    <option value="7">最近 7 天</option>
+                                    <option value="30">最近 30 天</option>
+                                    <option value="90">最近 90 天</option>
+                                </select>
+                            </div>
+
+                            <div class="flex flex-col">
+                                <label class="mb-2 text-sm font-medium text-gray-300">地區篩選</label>
+                                <select id="regionFilter" class="rounded-md border-gray-700 bg-gray-800 text-white focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]">
+                                    <option value="">全部地區</option>
+                                </select>
+                            </div>
+
+                            <div class="flex flex-col">
+                                <label class="mb-2 text-sm font-medium text-gray-300">影片類型</label>
+                                <select id="typeFilter" class="rounded-md border-gray-700 bg-gray-800 text-white focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]">
+                                    <option value="">全部類型</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 載入指示器 -->
+                    <div id="loadingIndicator" class="flex items-center justify-center py-12">
+                        <span class="material-symbols-outlined text-4xl text-gray-400 loading">analytics</span>
+                        <span class="ml-2 text-gray-400">分析資料中...</span>
+                    </div>
+
+                    <!-- 統計概要 -->
+                    <div id="statsSection" class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" style="display: none;">
+                        <div class="rounded-lg bg-gray-800/50 p-6 shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-400">總 Hashtag 數</p>
+                                    <p id="totalHashtags" class="text-2xl font-bold text-white">0</p>
+                                </div>
+                                <span class="material-symbols-outlined text-3xl text-[var(--primary-color)]">tag</span>
+                            </div>
+                        </div>
+
+                        <div class="rounded-lg bg-gray-800/50 p-6 shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-400">總使用次數</p>
+                                    <p id="totalUsage" class="text-2xl font-bold text-white">0</p>
+                                </div>
+                                <span class="material-symbols-outlined text-3xl text-[var(--primary-color)]">trending_up</span>
+                            </div>
+                        </div>
+
+                        <div class="rounded-lg bg-gray-800/50 p-6 shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-400">總觀看數</p>
+                                    <p id="totalViews" class="text-2xl font-bold text-white">0</p>
+                                </div>
+                                <span class="material-symbols-outlined text-3xl text-[var(--primary-color)]">visibility</span>
+                            </div>
+                        </div>
+
+                        <div class="rounded-lg bg-gray-800/50 p-6 shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-400">平均每次使用觀看數</p>
+                                    <p id="avgViews" class="text-2xl font-bold text-white">0</p>
+                                </div>
+                                <span class="material-symbols-outlined text-3xl text-[var(--primary-color)]">calculate</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 圖表區域 -->
+                    <div id="chartSection" class="grid grid-cols-1 lg:grid-cols-3 gap-8" style="display: none;">
+                        <!-- 主要圖表 -->
+                        <div class="lg:col-span-2">
+                            <div class="rounded-lg bg-gray-800/50 p-6 shadow-lg">
+                                <h3 class="text-xl font-bold text-white mb-6">Hashtag 使用統計</h3>
+                                <div class="relative" style="height: 400px;">
+                                    <canvas id="mainChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 側邊列表 -->
+                        <div class="lg:col-span-1">
+                            <div class="rounded-lg bg-gray-800/50 p-6 shadow-lg">
+                                <h3 class="text-xl font-bold text-white mb-6">排行榜</h3>
+                                <div id="hashtagList" class="space-y-3 max-h-96 overflow-y-auto">
+                                    <!-- 動態生成的排行榜內容 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 詳細資料表格 -->
+                    <div id="tableSection" class="mt-8 rounded-lg bg-gray-800/50 p-6 shadow-lg" style="display: none;">
+                        <h3 class="text-xl font-bold text-white mb-6">詳細資料</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-gray-300">
+                                <thead class="text-xs text-gray-400 uppercase bg-gray-700">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left">排名</th>
+                                        <th class="px-6 py-3 text-left">Hashtag</th>
+                                        <th class="px-6 py-3 text-right">使用次數</th>
+                                        <th class="px-6 py-3 text-right">總觀看數</th>
+                                        <th class="px-6 py-3 text-right">平均觀看數</th>
+                                        <th class="px-6 py-3 text-right">佔比</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="hashtagTableBody" class="divide-y divide-gray-700">
+                                    <!-- 動態生成的表格內容 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // 全域變數
+        let allVideos = [];
+        let hashtagData = [];
+        let currentChart = null;
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzdQjqkel8skf2fHM72cG9-BNsFQ15hpeVd0Me3LesvuxB210eHGTTyU28omHxvnZA1ZQ/exec';
+
+        // 格式化數字顯示
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+
+        // 載入影片資料
+        async function loadVideoData() {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const dataCount = document.getElementById('dataCount');
+
+            loadingIndicator.style.display = 'flex';
+
+            try {
+                const response = await fetch(`${APPS_SCRIPT_URL}?action=getData`);
+                const result = await response.json();
+
+                if (result.success) {
+                    allVideos = result.data;
+                    dataCount.textContent = `總共 ${allVideos.length} 筆資料`;
+                    generateHashtagAnalytics();
+                    loadFilterOptions();
+                } else {
+                    throw new Error(result.error || '載入資料失敗');
+                }
+            } catch (error) {
+                console.error('載入資料失敗:', error);
+                dataCount.textContent = '載入失敗';
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        // 載入篩選選項
+        function loadFilterOptions() {
+            const regionSelect = document.getElementById('regionFilter');
+            const typeSelect = document.getElementById('typeFilter');
+
+            // 清空現有選項
+            regionSelect.innerHTML = '<option value="">全部地區</option>';
+            typeSelect.innerHTML = '<option value="">全部類型</option>';
+
+            // 提取唯一的地區和類型
+            const regions = [...new Set(allVideos.map(video => video.region).filter(Boolean))];
+            const types = [...new Set(allVideos.map(video => video.type).filter(Boolean))];
+
+            // 加入地區選項
+            regions.forEach(region => {
+                const option = document.createElement('option');
+                option.value = region;
+                option.textContent = region;
+                regionSelect.appendChild(option);
+            });
+
+            // 加入類型選項
+            types.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeSelect.appendChild(option);
+            });
+        }
+
+        // 生成 hashtag 分析資料
+        function generateHashtagAnalytics() {
+            const timeRange = document.getElementById('timeRange').value;
+            const regionFilter = document.getElementById('regionFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+
+            // 篩選影片資料
+            let filteredVideos = allVideos.filter(video => {
+                // 時間篩選
+                if (timeRange !== 'all') {
+                    const days = parseInt(timeRange);
+                    const videoDate = new Date(video.publishedAt);
+                    const cutoffDate = new Date();
+                    cutoffDate.setDate(cutoffDate.getDate() - days);
+                    if (videoDate < cutoffDate) return false;
+                }
+
+                // 地區篩選
+                if (regionFilter && video.region !== regionFilter) return false;
+
+                // 類型篩選
+                if (typeFilter && video.type !== typeFilter) return false;
+
+                return true;
+            });
+
+            // 生成 hashtag 統計
+            const hashtagMap = new Map();
+
+            filteredVideos.forEach(video => {
+                if (video.hashtags) {
+                    let tags = [];
+                    if (typeof video.hashtags === 'string') {
+                        tags = video.hashtags.split(',').map(tag => tag.trim()).filter(tag => tag);
+                    } else if (Array.isArray(video.hashtags)) {
+                        tags = video.hashtags.filter(tag => tag && typeof tag === 'string');
+                    }
+
+                    tags.forEach(tag => {
+                        if (hashtagMap.has(tag)) {
+                            const existing = hashtagMap.get(tag);
+                            hashtagMap.set(tag, {
+                                ...existing,
+                                count: existing.count + 1,
+                                totalViews: existing.totalViews + (video.viewCount || 0),
+                                videos: [...existing.videos, video]
+                            });
+                        } else {
+                            hashtagMap.set(tag, {
+                                hashtag: tag,
+                                count: 1,
+                                totalViews: video.viewCount || 0,
+                                videos: [video]
+                            });
+                        }
+                    });
+                }
+            });
+
+            // 轉換為陣列並排序
+            const sortBy = document.getElementById('sortBy').value;
+            const topCount = parseInt(document.getElementById('topCount').value);
+
+            hashtagData = Array.from(hashtagMap.values())
+                .sort((a, b) => {
+                    if (sortBy === 'count') {
+                        return b.count - a.count;
+                    } else {
+                        return b.totalViews - a.totalViews;
+                    }
+                })
+                .slice(0, topCount);
+
+            updateDisplay();
+        }
+
+        // 更新顯示
+        function updateDisplay() {
+            updateStats();
+            updateChart();
+            updateList();
+            updateTable();
+
+            // 顯示各個區塊
+            document.getElementById('statsSection').style.display = 'grid';
+            document.getElementById('chartSection').style.display = 'grid';
+            document.getElementById('tableSection').style.display = 'block';
+        }
+
+        // 更新統計概要
+        function updateStats() {
+            const totalHashtags = hashtagData.length;
+            const totalUsage = hashtagData.reduce((sum, item) => sum + item.count, 0);
+            const totalViews = hashtagData.reduce((sum, item) => sum + item.totalViews, 0);
+            const avgViews = totalUsage > 0 ? Math.round(totalViews / totalUsage) : 0;
+
+            document.getElementById('totalHashtags').textContent = formatNumber(totalHashtags);
+            document.getElementById('totalUsage').textContent = formatNumber(totalUsage);
+            document.getElementById('totalViews').textContent = formatNumber(totalViews);
+            document.getElementById('avgViews').textContent = formatNumber(avgViews);
+        }
+
+        // 更新圖表
+        function updateChart() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            const chartType = document.querySelector('.flex.rounded-lg.bg-gray-700 button.bg-\\[var\\(--primary-color\\)\\]')?.textContent.includes('圓餅') ? 'pie' :
+                             document.querySelector('.flex.rounded-lg.bg-gray-700 button.bg-\\[var\\(--primary-color\\)\\]')?.textContent.includes('環圈') ? 'doughnut' : 'bar';
+
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            const sortBy = document.getElementById('sortBy').value;
+            const labels = hashtagData.map(item => item.hashtag);
+            const data = hashtagData.map(item => sortBy === 'count' ? item.count : item.totalViews);
+
+            const colors = [
+                '#ea2a33', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6',
+                '#06b6d4', '#84cc16', '#f97316', '#ec4899', '#6366f1',
+                '#14b8a6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'
+            ];
+
+            currentChart = new Chart(ctx, {
+                type: chartType === 'pie' ? 'pie' : chartType === 'doughnut' ? 'doughnut' : 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, data.length),
+                        borderColor: '#1f2937',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: chartType === 'bar' ? 'top' : 'right',
+                            labels: {
+                                color: '#e5e7eb',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1f2937',
+                            titleColor: '#e5e7eb',
+                            bodyColor: '#e5e7eb',
+                            borderColor: '#374151',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: chartType === 'bar' ? {
+                        y: {
+                            ticks: {
+                                color: '#9ca3af'
+                            },
+                            grid: {
+                                color: '#374151'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#9ca3af',
+                                maxRotation: 45
+                            },
+                            grid: {
+                                color: '#374151'
+                            }
+                        }
+                    } : {}
+                }
+            });
+        }
+
+        // 更新排行榜列表
+        function updateList() {
+            const listContainer = document.getElementById('hashtagList');
+            listContainer.innerHTML = hashtagData.map((item, index) => `
+                <div class="flex items-center justify-between p-3 rounded-lg bg-gray-700/50 hover:bg-gray-700 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--primary-color)] text-white text-xs font-bold">
+                            ${index + 1}
+                        </span>
+                        <span class="text-white font-medium">#${item.hashtag}</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-white">${formatNumber(item.count)} 次</div>
+                        <div class="text-xs text-gray-400">${formatNumber(item.totalViews)} 觀看</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 更新詳細表格
+        function updateTable() {
+            const tableBody = document.getElementById('hashtagTableBody');
+            const totalUsage = hashtagData.reduce((sum, item) => sum + item.count, 0);
+
+            tableBody.innerHTML = hashtagData.map((item, index) => {
+                const avgViews = item.count > 0 ? Math.round(item.totalViews / item.count) : 0;
+                const percentage = totalUsage > 0 ? ((item.count / totalUsage) * 100).toFixed(1) : 0;
+
+                return `
+                    <tr class="hover:bg-gray-700/50">
+                        <td class="px-6 py-4 text-white font-medium">${index + 1}</td>
+                        <td class="px-6 py-4 text-white">#${item.hashtag}</td>
+                        <td class="px-6 py-4 text-right text-white">${formatNumber(item.count)}</td>
+                        <td class="px-6 py-4 text-right text-white">${formatNumber(item.totalViews)}</td>
+                        <td class="px-6 py-4 text-right text-white">${formatNumber(avgViews)}</td>
+                        <td class="px-6 py-4 text-right text-gray-300">${percentage}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 事件監聽器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 載入初始資料
+            loadVideoData();
+
+            // 篩選和設定變更事件
+            document.getElementById('sortBy').addEventListener('change', generateHashtagAnalytics);
+            document.getElementById('topCount').addEventListener('change', generateHashtagAnalytics);
+            document.getElementById('timeRange').addEventListener('change', generateHashtagAnalytics);
+            document.getElementById('regionFilter').addEventListener('change', generateHashtagAnalytics);
+            document.getElementById('typeFilter').addEventListener('change', generateHashtagAnalytics);
+
+            // 圖表類型切換
+            const chartButtons = document.querySelectorAll('.flex.rounded-lg.bg-gray-700 button');
+            chartButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 移除所有按鈕的活動狀態
+                    chartButtons.forEach(btn => {
+                        btn.classList.remove('bg-[var(--primary-color)]', 'text-white');
+                        btn.classList.add('text-gray-400');
+                    });
+
+                    // 設定當前按鈕為活動狀態
+                    this.classList.add('bg-[var(--primary-color)]', 'text-white');
+                    this.classList.remove('text-gray-400');
+
+                    // 更新圖表
+                    updateChart();
+                });
+            });
+
+            // 重新整理按鈕
+            document.getElementById('refreshBtn').addEventListener('click', function() {
+                loadVideoData();
+            });
+        });
+    </script>
+</body>
+</html>
