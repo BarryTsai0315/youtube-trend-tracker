@@ -934,7 +934,7 @@ function createDailySheets(spreadsheet, daysInMonth) {
     let sheet = spreadsheet.getSheetByName(sheetName);
 
     if (!sheet) {
-      sheet = spreadsheet.insertSheet(sheetName);
+      sheet = spreadsheet.insertSheet(sheetName, day);
     }
 
     // 設定標題行
@@ -1221,8 +1221,9 @@ function createSheetIfNotExists(spreadsheet, sheetName) {
   let sheet = spreadsheet.getSheetByName(sheetName);
 
   if (!sheet) {
-    // 分頁不存在，建立新分頁
-    sheet = spreadsheet.insertSheet(sheetName);
+    // 分頁不存在，建立新分頁，按日期順序插入
+    const dayNumber = parseInt(sheetName, 10);
+    sheet = spreadsheet.insertSheet(sheetName, dayNumber);
     console.log(`     📄 建立新分頁：${sheetName}`);
   } else {
     console.log(`     ✅ 分頁已存在：${sheetName}`);
