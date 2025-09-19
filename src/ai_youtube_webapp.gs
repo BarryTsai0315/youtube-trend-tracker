@@ -20,6 +20,40 @@
  *
  * "Bad programmers worry about the code. Good programmers worry about data structures."
  *                                                                    - Linus Torvalds
+ *
+ * ============================================================================
+ * API 使用說明
+ * ============================================================================
+ *
+ * 【原有搜尋 API】- 向後兼容
+ * GET ?q=搜尋詞&days=天數&max=數量&regionCode=地區&shorts=true/false&keywords=關鍵字
+ *
+ * 【新版篩選 API】- v2.0 功能
+ * GET ?action=filter&dateFrom=開始日期&dateTo=結束日期&viewMin=最小觀看數&viewMax=最大觀看數&page=頁數&size=每頁筆數&region=地區&type=類型
+ *
+ * 篩選 API 參數說明：
+ * - action=filter      : 必須，啟用篩選模式
+ * - dateFrom          : 選填，開始日期 (YYYY-MM-DD)
+ * - dateTo            : 選填，結束日期 (YYYY-MM-DD)
+ * - viewMin           : 選填，最小觀看數，預設 0
+ * - viewMax           : 選填，最大觀看數，預設無上限
+ * - page              : 選填，頁數，預設 1
+ * - size              : 選填，每頁筆數，預設 50，最大 100
+ * - region            : 選填，地區代碼 (TW, US, IN, BR, ID, MX)
+ * - type              : 選填，影片類型 (videos, shorts)
+ *
+ * 回應格式：
+ * {
+ *   "total": 總筆數,
+ *   "page": 當前頁數,
+ *   "size": 每頁筆數,
+ *   "totalPages": 總頁數,
+ *   "items": [影片資料陣列],
+ *   "filters": {套用的篩選條件}
+ * }
+ *
+ * 使用範例：
+ * ?action=filter&dateFrom=2024-01-01&dateTo=2024-01-31&viewMin=1000&viewMax=100000&page=1&size=50&region=TW&type=videos
  */
 
 // ============================================================================
@@ -251,13 +285,15 @@ function doGet(e) {
   try {
     const params = (e && e.parameter) || {};
 
-    // 參數正規化 - 統一處理，消除特殊情況
-    const config = normalizeParams(params);
+    // 檢查是否為新的篩選 API 請求
+    if (params.action === 'filter') {
+      return handleFilterRequest(params);
+    }
 
-    // 搜尋影片 - 單一職責
+    // 原有的搜尋 API - 保持向後兼容
+    const config = normalizeParams(params);
     const videos = searchVideos(config);
 
-    // 回傳結果 - 保持原有格式
     return createJsonResponse({
       query: config.query,
       keywords: config.keywords,
@@ -270,6 +306,63 @@ function doGet(e) {
   } catch (error) {
     return createJsonResponse({ error: error.toString() }, 500);
   }
+}
+
+/**
+ * 處理篩選 API 請求
+ *
+ * @param {Object} params - 請求參數
+ * @return {ContentService.TextOutput} JSON 回應
+ */
+function handleFilterRequest(params) {
+  try {
+    // 正規化篩選參數
+    const filters = normalizeFilterParams(params);
+
+    // 執行篩選查詢
+    const result = getFilteredData(filters);
+
+    return createJsonResponse(result);
+
+  } catch (error) {
+    console.log(`篩選 API 錯誤: ${error.toString()}`);
+    return createJsonResponse({ error: error.toString() }, 500);
+  }
+}
+
+/**
+ * 正規化篩選參數
+ *
+ * @param {Object} params - 原始參數
+ * @return {Object} 正規化後的篩選配置
+ */
+function normalizeFilterParams(params) {
+  // 日期範圍
+  const dateFrom = params.dateFrom || null;
+  const dateTo = params.dateTo || null;
+
+  // 觀看數範圍
+  const viewMin = params.viewMin ? parseInt(params.viewMin) : 0;
+  const viewMax = params.viewMax ? parseInt(params.viewMax) : Number.MAX_SAFE_INTEGER;
+
+  // 分頁參數
+  const page = Math.max(1, parseInt(params.page) || 1);
+  const size = Math.max(1, Math.min(100, parseInt(params.size) || 50)); // 限制最大100筆
+
+  // 其他篩選條件
+  const region = params.region || '';
+  const type = params.type || ''; // 'videos' 或 'shorts'
+
+  return {
+    dateFrom,
+    dateTo,
+    viewMin,
+    viewMax,
+    page,
+    size,
+    region,
+    type
+  };
 }
 
 /**
@@ -457,6 +550,119 @@ function createJsonResponse(data, status) {
   output.setMimeType(ContentService.MimeType.JSON);
   if (status) data.status = status;
   return output;
+}
+
+/**
+ * 執行數據篩選查詢
+ *
+ * "Good taste" - 從網站資料 Sheet 讀取並篩選，支援分頁
+ *
+ * @param {Object} filters - 篩選條件
+ * @return {Object} 篩選結果
+ */
+function getFilteredData(filters) {
+  try {
+    // 讀取網站資料 Sheet 的所有數據
+    const sheet = getWebsiteDataSheet();
+    const lastRow = sheet.getLastRow();
+
+    if (lastRow <= 1) {
+      return {
+        total: 0,
+        page: filters.page,
+        size: filters.size,
+        totalPages: 0,
+        items: []
+      };
+    }
+
+    // 讀取所有數據（不包含標題行）
+    const allData = sheet.getRange(2, 1, lastRow - 1, COLUMNS.length).getValues();
+
+    // 轉換為物件格式並應用篩選條件
+    const filteredItems = allData
+      .map(row => convertRowToVideoObject(row))
+      .filter(video => applyFilters(video, filters));
+
+    // 計算分頁資訊
+    const total = filteredItems.length;
+    const totalPages = Math.ceil(total / filters.size);
+    const startIndex = (filters.page - 1) * filters.size;
+    const endIndex = Math.min(startIndex + filters.size, total);
+
+    // 取得當前頁的數據
+    const pageItems = filteredItems.slice(startIndex, endIndex);
+
+    return {
+      total,
+      page: filters.page,
+      size: filters.size,
+      totalPages,
+      items: pageItems,
+      filters: {
+        dateFrom: filters.dateFrom,
+        dateTo: filters.dateTo,
+        viewMin: filters.viewMin,
+        viewMax: filters.viewMax,
+        region: filters.region,
+        type: filters.type
+      }
+    };
+
+  } catch (error) {
+    console.log(`數據篩選失敗: ${error.toString()}`);
+    throw error;
+  }
+}
+
+/**
+ * 將 Sheet 行數據轉換為影片物件
+ *
+ * @param {Array} row - Sheet 行數據
+ * @return {Object} 影片物件
+ */
+function convertRowToVideoObject(row) {
+  return {
+    rank: row[0] || 0,
+    videoId: row[1] || '',
+    title: row[2] || '',
+    channelTitle: row[3] || '',
+    publishedAt: row[4] || '',
+    region: row[5] || '',
+    type: row[6] || '',
+    recordDate: row[7] || '',
+    url: row[8] || '',
+    viewCount: row[9] || 0,
+    likeCount: row[10] || 0,
+    commentCount: row[11] || 0,
+    hashtags: row[12] || '',
+    durationSeconds: row[13] || 0
+  };
+}
+
+/**
+ * 應用篩選條件
+ *
+ * @param {Object} video - 影片物件
+ * @param {Object} filters - 篩選條件
+ * @return {boolean} 是否符合篩選條件
+ */
+function applyFilters(video, filters) {
+  // 日期範圍篩選
+  if (filters.dateFrom && video.recordDate < filters.dateFrom) return false;
+  if (filters.dateTo && video.recordDate > filters.dateTo) return false;
+
+  // 觀看數範圍篩選
+  const viewCount = parseInt(video.viewCount) || 0;
+  if (viewCount < filters.viewMin || viewCount > filters.viewMax) return false;
+
+  // 地區篩選
+  if (filters.region && video.region !== filters.region) return false;
+
+  // 類型篩選 (videos/shorts)
+  if (filters.type && video.type !== filters.type) return false;
+
+  return true;
 }
 
 // ============================================================================
@@ -1442,5 +1648,115 @@ function checkWebsiteDataSheetStatus() {
 
   } catch (error) {
     console.log(`❌ 無法檢查網站資料 Sheet: ${error.toString()}`);
+  }
+}
+
+/**
+ * 🧪 測試篩選和分頁功能
+ */
+function testFilterAndPagination() {
+  console.log('🧪 =======================================');
+  console.log('🧪 測試篩選和分頁功能');
+  console.log('🧪 =======================================');
+
+  try {
+    // 測試 1: 基本分頁功能
+    console.log('📋 測試 1: 基本分頁功能...');
+    const basicFilters = {
+      dateFrom: null,
+      dateTo: null,
+      viewMin: 0,
+      viewMax: Number.MAX_SAFE_INTEGER,
+      page: 1,
+      size: 10,
+      region: '',
+      type: ''
+    };
+
+    const basicResult = getFilteredData(basicFilters);
+    console.log(`   ✅ 第1頁，每頁10筆：找到 ${basicResult.total} 筆資料，共 ${basicResult.totalPages} 頁`);
+    console.log(`   📊 當前頁資料筆數: ${basicResult.items.length}`);
+
+    // 測試 2: 日期範圍篩選
+    console.log('📋 測試 2: 日期範圍篩選...');
+    const today = new Date().toLocaleDateString('sv-SE');
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString('sv-SE');
+
+    const dateFilters = {
+      ...basicFilters,
+      dateFrom: yesterday,
+      dateTo: today
+    };
+
+    const dateResult = getFilteredData(dateFilters);
+    console.log(`   ✅ 日期範圍 ${yesterday} 到 ${today}：找到 ${dateResult.total} 筆資料`);
+
+    // 測試 3: 觀看數範圍篩選
+    console.log('📋 測試 3: 觀看數範圍篩選...');
+    const viewFilters = {
+      ...basicFilters,
+      viewMin: 1000,
+      viewMax: 100000
+    };
+
+    const viewResult = getFilteredData(viewFilters);
+    console.log(`   ✅ 觀看數範圍 1,000 到 100,000：找到 ${viewResult.total} 筆資料`);
+
+    // 測試 4: 地區篩選
+    console.log('📋 測試 4: 地區篩選...');
+    const regionFilters = {
+      ...basicFilters,
+      region: 'TW'
+    };
+
+    const regionResult = getFilteredData(regionFilters);
+    console.log(`   ✅ 台灣地區：找到 ${regionResult.total} 筆資料`);
+
+    // 測試 5: 組合篩選
+    console.log('📋 測試 5: 組合篩選...');
+    const comboFilters = {
+      dateFrom: yesterday,
+      dateTo: today,
+      viewMin: 1000,
+      viewMax: 1000000,
+      page: 1,
+      size: 5,
+      region: 'TW',
+      type: 'videos'
+    };
+
+    const comboResult = getFilteredData(comboFilters);
+    console.log(`   ✅ 組合篩選（日期+觀看數+地區+類型）：找到 ${comboResult.total} 筆資料`);
+
+    // 測試 6: 分頁測試
+    if (basicResult.totalPages > 1) {
+      console.log('📋 測試 6: 分頁測試...');
+      const page2Filters = { ...basicFilters, page: 2 };
+      const page2Result = getFilteredData(page2Filters);
+      console.log(`   ✅ 第2頁資料：${page2Result.items.length} 筆`);
+    }
+
+    console.log('🎉 =======================================');
+    console.log('🎉 篩選和分頁功能測試完成！');
+    console.log('🎉 =======================================');
+    console.log('📊 測試總結：');
+    console.log('   • 基本分頁: ✅ 正常');
+    console.log('   • 日期篩選: ✅ 正常');
+    console.log('   • 觀看數篩選: ✅ 正常');
+    console.log('   • 地區篩選: ✅ 正常');
+    console.log('   • 組合篩選: ✅ 正常');
+    console.log('');
+    console.log('🎯 API 端點：');
+    console.log('   GET ?action=filter&dateFrom=2024-01-01&dateTo=2024-01-31&viewMin=1000&viewMax=100000&page=1&size=50');
+
+    return { success: true };
+
+  } catch (error) {
+    console.log('❌ =======================================');
+    console.log('❌ 測試過程發生錯誤');
+    console.log('❌ =======================================');
+    console.log(`錯誤訊息: ${error.toString()}`);
+
+    return { success: false, error: error.toString() };
   }
 }

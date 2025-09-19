@@ -6,7 +6,7 @@
     <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
     <link as="style" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans+TC:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;700;800" onload="this.rel='stylesheet'" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    <title>YouTube 趨勢追蹤分析平台 v3.0</title>
+    <title>YouTube 趨勢追蹤分析平台 v3.1</title>
     <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <style type="text/tailwindcss">
@@ -40,7 +40,7 @@
                 <h1 class="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
                     YouTube 趨勢追蹤分析平台
                 </h1>
-                <p class="text-xl md:text-2xl text-gray-300 mb-2">v3.0 Web 分析工具平台</p>
+                <p class="text-xl md:text-2xl text-gray-300 mb-2">v3.1 Web 分析工具平台</p>
                 <p class="text-lg text-gray-400 max-w-3xl mx-auto">
                     深度分析 YouTube 熱門影片趨勢，提供影片搜尋、Hashtag 統計和標題文字雲三大專業分析工具
                 </p>
@@ -49,7 +49,7 @@
             <!-- Version Badge -->
             <div class="inline-flex items-center px-6 py-3 bg-blue-600 rounded-full text-white font-medium mb-8">
                 <span class="material-symbols-outlined mr-2">new_releases</span>
-                v3.0.0 正式版 - 2025年9月18日發布
+                v3.1.0 增強版 - 2025年9月19日發布
             </div>
         </div>
     </header>
@@ -67,7 +67,7 @@
                     </div>
                     <h3 class="text-2xl font-bold text-center mb-4">影片搜尋分析</h3>
                     <p class="text-gray-300 text-center mb-6 leading-relaxed">
-                        響應式影片網格展示，支援多維度即時篩選：地區、類型、觀看數範圍、關鍵字搜尋
+                        響應式影片網格展示，支援多維度即時篩選：日期範圍、地區、類型、觀看數範圍、關鍵字搜尋
                     </p>
                     <div class="space-y-2 mb-6">
                         <div class="flex items-center text-sm text-gray-400">
@@ -76,11 +76,11 @@
                         </div>
                         <div class="flex items-center text-sm text-gray-400">
                             <span class="material-symbols-outlined text-green-400 mr-2">check</span>
-                            多維度即時篩選
+                            日期範圍與觀看數篩選
                         </div>
                         <div class="flex items-center text-sm text-gray-400">
                             <span class="material-symbols-outlined text-green-400 mr-2">check</span>
-                            YouTube 縮圖整合
+                            智能分頁與防抖動搜尋
                         </div>
                     </div>
                     <a href="video-search.html" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg text-center transition-colors">
@@ -150,7 +150,7 @@
     <!-- Features Section -->
     <section class="py-16 bg-gray-900">
         <div class="container mx-auto px-6">
-            <h2 class="text-3xl font-bold text-center mb-12">v3.0 平台特色</h2>
+            <h2 class="text-3xl font-bold text-center mb-12">v3.1 平台特色</h2>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <div class="text-center">
@@ -264,7 +264,7 @@
             </p>
 
             <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                <a href="docs/beginner.md" class="bg-gray-800 hover:bg-gray-700 p-6 rounded-lg transition-colors text-left">
+                <a href="beginner.html" class="bg-gray-800 hover:bg-gray-700 p-6 rounded-lg transition-colors text-left">
                     <div class="flex items-center mb-4">
                         <span class="material-symbols-outlined text-green-400 mr-3">school</span>
                         <h3 class="font-bold">新手教學</h3>
@@ -272,7 +272,7 @@
                     <p class="text-gray-400 text-sm">完整的設置指南和使用教學</p>
                 </a>
 
-                <a href="docs/develop.md" class="bg-gray-800 hover:bg-gray-700 p-6 rounded-lg transition-colors text-left">
+                <a href="develop.html" class="bg-gray-800 hover:bg-gray-700 p-6 rounded-lg transition-colors text-left">
                     <div class="flex items-center mb-4">
                         <span class="material-symbols-outlined text-blue-400 mr-3">code</span>
                         <h3 class="font-bold">開發文檔</h3>
@@ -280,7 +280,7 @@
                     <p class="text-gray-400 text-sm">技術架構和開發指南</p>
                 </a>
 
-                <a href="docs/CHANGELOG.md" class="bg-gray-800 hover:bg-gray-700 p-6 rounded-lg transition-colors text-left">
+                <a href="changelog.html" class="bg-gray-800 hover:bg-gray-700 p-6 rounded-lg transition-colors text-left">
                     <div class="flex items-center mb-4">
                         <span class="material-symbols-outlined text-yellow-400 mr-3">history</span>
                         <h3 class="font-bold">更新記錄</h3>
@@ -296,10 +296,10 @@
         <div class="container mx-auto px-6 text-center">
             <div class="mb-4">
                 <h3 class="text-xl font-bold mb-2">YouTube 趨勢追蹤分析平台</h3>
-                <p class="text-gray-400">v3.0.0 Web 分析工具平台版</p>
+                <p class="text-gray-400">v3.1.0 增強版 - 日期篩選與分頁功能</p>
             </div>
             <div class="text-sm text-gray-500">
-                <p>最後更新：2025-09-18 | 技術支援：AI Assistant (Claude)</p>
+                <p>最後更新：2025-09-19 | 技術支援：AI Assistant (Claude)</p>
                 <p class="mt-2">🚀 Production Ready | 零框架依賴 | 完全響應式設計</p>
             </div>
         </div>

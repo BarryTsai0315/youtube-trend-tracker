@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans+TC:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;700;800" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <title>新手教學 - YouTube 趨勢追蹤分析平台</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+        :root {
+            --primary-color: #ea2a33;
+            --secondary-color: #3b82f6;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+        }
+        .code-block {
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+        }
+        .step-card {
+            transition: all 0.3s ease;
+        }
+        .step-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 border-b border-gray-700">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center gap-3 text-white hover:text-gray-300 transition-colors">
+                    <svg class="h-8 w-8 text-[var(--primary-color)]" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 15.65v-7.3L16.03 12M22 12c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2s10 4.48 10 10zM4 12c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8-8 3.58-8 8z"></path>
+                    </svg>
+                    <span class="text-xl font-bold">YouTube 趨勢追蹤分析平台</span>
+                </a>
+                <div class="flex items-center gap-4">
+                    <a href="index.html" class="px-4 py-2 rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white transition-colors">首頁</a>
+                    <a href="beginner.html" class="px-4 py-2 rounded-lg bg-[var(--primary-color)] text-white">新手教學</a>
+                    <a href="develop.html" class="px-4 py-2 rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white transition-colors">開發文檔</a>
+                    <a href="changelog.html" class="px-4 py-2 rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white transition-colors">更新紀錄</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="hero-gradient py-16">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                📖 新手教學
+            </h1>
+            <p class="text-xl text-gray-300 mb-6">從零開始，30分鐘搭建完整的 YouTube 趨勢分析系統</p>
+            <div class="inline-flex items-center px-6 py-3 bg-blue-600 rounded-full text-white font-medium">
+                <span class="material-symbols-outlined mr-2">school</span>
+                完整步驟指南 - 新手友好
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="py-16">
+        <div class="container mx-auto px-6 max-w-4xl">
+
+            <!-- v3.1 Update Notice -->
+            <div class="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-lg p-6 mb-12">
+                <div class="flex items-center mb-4">
+                    <span class="material-symbols-outlined text-blue-400 mr-3 text-2xl">celebration</span>
+                    <h2 class="text-2xl font-bold text-blue-400">🌟 v3.1 重大更新：增強版功能</h2>
+                </div>
+                <div class="grid md:grid-cols-3 gap-4 mb-4">
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <h3 class="font-bold text-green-400 mb-2">📅 日期範圍篩選</h3>
+                        <p class="text-sm text-gray-300">精確控制數據時間範圍</p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <h3 class="font-bold text-green-400 mb-2">📊 觀看數範圍篩選</h3>
+                        <p class="text-sm text-gray-300">設定最小/最大觀看數範圍</p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <h3 class="font-bold text-green-400 mb-2">📄 智能分頁系統</h3>
+                        <p class="text-sm text-gray-300">防抖動搜尋與流暢分頁</p>
+                    </div>
+                </div>
+                <p class="text-blue-300">我們在影片搜尋分析中新增了強大的篩選和分頁功能，讓您的數據分析更加精準高效！</p>
+            </div>
+
+            <!-- Requirements -->
+            <section class="mb-16">
+                <h2 class="text-3xl font-bold mb-8 flex items-center">
+                    <span class="material-symbols-outlined text-[var(--primary-color)] mr-3">checklist</span>
+                    📋 你需要什麼？
+                </h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-xl font-bold mb-4 text-green-400">基本需求</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2">check</span>一個 Google 帳號（有 Gmail 就有）</li>
+                            <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2">check</span>一台能上網的電腦</li>
+                            <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2">check</span>大約 30 分鐘的時間</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-xl font-bold mb-4 text-blue-400">工具概覽</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-center"><span class="material-symbols-outlined text-blue-400 mr-2">code</span>Google Apps Script - 資料收集後端</li>
+                            <li class="flex items-center"><span class="material-symbols-outlined text-blue-400 mr-2">web</span>Web 分析工具 - 數據分析前端</li>
+                            <li class="flex items-center"><span class="material-symbols-outlined text-blue-400 mr-2">table_chart</span>Google Sheets - 數據儲存</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Phase 1: Backend Setup -->
+            <section class="mb-16">
+                <h2 class="text-3xl font-bold mb-8 flex items-center">
+                    <span class="material-symbols-outlined text-[var(--primary-color)] mr-3">settings</span>
+                    第一階段：建立資料收集系統 📊
+                </h2>
+
+                <!-- Step 1 -->
+                <div class="step-card bg-gray-800 rounded-lg p-6 mb-6">
+                    <h3 class="text-2xl font-bold mb-4 text-yellow-400">步驟 1：建立 Google Apps Script 專案</h3>
+
+                    <div class="bg-gray-700 rounded-lg p-4 mb-4">
+                        <h4 class="font-bold mb-2">1.1 開啟 Google Apps Script</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-300">
+                            <li>前往：<a href="https://script.google.com/" target="_blank" class="text-blue-400 hover:text-blue-300">script.google.com</a></li>
+                            <li>用你的 Google 帳號登入</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4 mb-4">
+                        <h4 class="font-bold mb-2">1.2 建立新專案</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-300">
+                            <li>點擊「新增專案」</li>
+                            <li>重新命名為「YouTube 趨勢追蹤系統」</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <h4 class="font-bold mb-2">1.3 設置程式碼</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-300">
+                            <li>複製專案中的 <code class="bg-gray-600 px-2 py-1 rounded">src/youtube-search-api.gs</code> 檔案內容</li>
+                            <li>貼上到 Google Apps Script 編輯器中</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-card bg-gray-800 rounded-lg p-6 mb-6">
+                    <h3 class="text-2xl font-bold mb-4 text-yellow-400">步驟 2：啟用 YouTube API</h3>
+
+                    <div class="bg-gray-700 rounded-lg p-4 mb-4">
+                        <h4 class="font-bold mb-2">2.1 在 Apps Script 中啟用</h4>
+                        <ol class="list-decimal list-inside space-y-1 text-gray-300">
+                            <li>點擊左側「服務」（Services）</li>
+                            <li>點擊「新增服務」➕</li>
+                            <li>搜尋並新增：<code class="bg-gray-600 px-2 py-1 rounded">YouTube Data API v3</code></li>
+                        </ol>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <h4 class="font-bold mb-2">2.2 在 Google Cloud 中啟用</h4>
+                        <ol class="list-decimal list-inside space-y-1 text-gray-300">
+                            <li>前往：<a href="https://console.cloud.google.com/" target="_blank" class="text-blue-400 hover:text-blue-300">console.cloud.google.com</a></li>
+                            <li>選擇專案 → API 和服務 → 程式庫</li>
+                            <li>搜尋 <code class="bg-gray-600 px-2 py-1 rounded">YouTube Data API v3</code> → 啟用</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-card bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-2xl font-bold mb-4 text-yellow-400">步驟 3：執行初始化</h3>
+
+                    <div class="bg-gray-700 rounded-lg p-4 mb-4">
+                        <h4 class="font-bold mb-2">3.1 首次授權</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-300">
+                            <li>選擇 <code class="bg-gray-600 px-2 py-1 rounded">setupSystem</code> 函數</li>
+                            <li>點擊執行，完成 Google 授權流程</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <h4 class="font-bold mb-2">3.2 開始資料收集</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-300">
+                            <li>執行 <code class="bg-gray-600 px-2 py-1 rounded">dailyYouTubeTracking()</code> 開始收集資料</li>
+                            <li>等待 3-5 分鐘完成首次執行</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Phase 2: Web Tools -->
+            <section class="mb-16">
+                <h2 class="text-3xl font-bold mb-8 flex items-center">
+                    <span class="material-symbols-outlined text-[var(--primary-color)] mr-3">web</span>
+                    第二階段：使用 Web 分析工具 🌐
+                </h2>
+
+                <!-- Tool 1 -->
+                <div class="step-card bg-gray-800 rounded-lg p-6 mb-6">
+                    <h3 class="text-2xl font-bold mb-4 text-blue-400">工具 1：影片搜尋分析 📺</h3>
+
+                    <div class="bg-blue-600/20 border border-blue-500/30 rounded-lg p-4 mb-4">
+                        <h4 class="font-bold mb-2 text-blue-300">🆕 v3.1 新功能</h4>
+                        <div class="grid md:grid-cols-2 gap-3 text-sm">
+                            <div>✨ 日期範圍篩選器</div>
+                            <div>✨ 觀看數範圍設定</div>
+                            <div>✨ 智能分頁系統</div>
+                            <div>✨ 防抖動搜尋</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4 mb-4">
+                        <h4 class="font-bold mb-2">🎯 主要功能</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-300">
+                            <li><strong>響應式影片網格</strong>：5 列精美卡片展示</li>
+                            <li><strong>多維度篩選</strong>：日期範圍、地區、類型、關鍵字、觀看數範圍</li>
+                            <li><strong>即時搜尋</strong>：標題和 hashtags 全文搜尋</li>
+                            <li><strong>統計顯示</strong>：觀看數、按讚數、留言數、影片時長</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <h4 class="font-bold mb-2">📱 使用方法</h4>
+                        <ol class="list-decimal list-inside space-y-1 text-gray-300">
+                            <li>在瀏覽器中開啟 <a href="video-search.html" class="text-blue-400 hover:text-blue-300">影片搜尋分析</a></li>
+                            <li>系統自動載入最新資料</li>
+                            <li>使用篩選器進行數據篩選：
+                                <ul class="list-disc list-inside ml-4 mt-2 space-y-1">
+                                    <li><strong>日期範圍</strong>：設定資料收集的時間範圍</li>
+                                    <li><strong>地區篩選</strong>：美國、印度、台灣、巴西、印尼、墨西哥</li>
+                                    <li><strong>類型篩選</strong>：一般影片、Shorts 短影片</li>
+                                    <li><strong>觀看數篩選</strong>：設定最小/最大觀看數範圍</li>
+                                    <li><strong>關鍵字搜尋</strong>：輸入關鍵字搜尋標題和標籤</li>
+                                </ul>
+                            </li>
+                            <li>使用分頁功能瀏覽大量數據</li>
+                            <li>點擊影片縮圖直接在 YouTube 觀看</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Tool 2 -->
+                <div class="step-card bg-gray-800 rounded-lg p-6 mb-6">
+                    <h3 class="text-2xl font-bold mb-4 text-green-400">工具 2：Hashtag 統計分析 📊</h3>
+
+                    <div class="bg-gray-700 rounded-lg p-4 mb-4">
+                        <h4 class="font-bold mb-2">🎯 主要功能</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-300">
+                            <li><strong>Chart.js 視覺化</strong>：圓餅圖、長條圖、環圈圖可切換</li>
+                            <li><strong>雙重排行榜</strong>：使用頻率排行 + 總觀看數排行</li>
+                            <li><strong>多維度篩選</strong>：時間範圍、地區、類型、排序方式</li>
+                            <li><strong>詳細數據表格</strong>：完整統計數據和百分比</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <h4 class="font-bold mb-2">📈 使用方法</h4>
+                        <ol class="list-decimal list-inside space-y-1 text-gray-300">
+                            <li>點擊頁面頂部「<a href="hashtag-analytics.html" class="text-green-400 hover:text-green-300">Hashtag 分析</a>」按鈕</li>
+                            <li>選擇篩選條件：時間範圍、地區選擇、影片類型、排序方式</li>
+                            <li>切換圖表類型：圓餅圖、長條圖、環圈圖</li>
+                            <li>查看詳細數據表格了解完整統計</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Tool 3 -->
+                <div class="step-card bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-2xl font-bold mb-4 text-purple-400">工具 3：標題文字雲分析 ☁️</h3>
+
+                    <div class="bg-gray-700 rounded-lg p-4 mb-4">
+                        <h4 class="font-bold mb-2">🎯 主要功能</h4>
+                        <ul class="list-disc list-inside space-y-1 text-gray-300">
+                            <li><strong>智能分詞</strong>：支援中英文混合文本分析</li>
+                            <li><strong>動態文字雲</strong>：字體大小和顏色反映重要程度</li>
+                            <li><strong>停用詞過濾</strong>：自動過濾無意義詞彙</li>
+                            <li><strong>互動式設計</strong>：點擊關鍵詞查看相關影片</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <h4 class="font-bold mb-2">☁️ 使用方法</h4>
+                        <ol class="list-decimal list-inside space-y-1 text-gray-300">
+                            <li>點擊頁面頂部「<a href="title-wordcloud.html" class="text-purple-400 hover:text-purple-300">文字雲分析</a>」按鈕</li>
+                            <li>設定分析參數：時間範圍、地區篩選、最小字數</li>
+                            <li>查看文字雲結果：字體大小反映頻率，顏色反映觀看數</li>
+                            <li>參考排行榜：頻率排行和觀看數排行</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Structure -->
+            <section class="mb-16">
+                <h2 class="text-3xl font-bold mb-8 flex items-center">
+                    <span class="material-symbols-outlined text-[var(--primary-color)] mr-3">database</span>
+                    🎯 數據來源和結構
+                </h2>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-xl font-bold mb-4 text-blue-400">📊 收集的數據內容</h3>
+                        <p class="text-gray-300 mb-4">每個影片包含以下資訊（14 個欄位）：</p>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div>🥇 排名</div><div>📺 影片 ID</div>
+                            <div>📝 標題</div><div>👤 頻道名稱</div>
+                            <div>📅 發佈時間</div><div>🌍 地區</div>
+                            <div>🎬 類型</div><div>📝 記錄日期</div>
+                            <div>🔗 YouTube 連結</div><div>👁️ 觀看數</div>
+                            <div>👍 按讚數</div><div>💬 留言數</div>
+                            <div>🏷️ hashtags</div><div>⏱️ 影片長度</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-xl font-bold mb-4 text-green-400">🌍 支援地區</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-center"><span class="mr-2">🇺🇸</span><strong>美國（US）</strong>：全球最大市場</div>
+                            <div class="flex items-center"><span class="mr-2">🇮🇳</span><strong>印度（IN）</strong>：人口最多市場</div>
+                            <div class="flex items-center"><span class="mr-2">🇹🇼</span><strong>台灣（TW）</strong>：繁體中文市場</div>
+                            <div class="flex items-center"><span class="mr-2">🇧🇷</span><strong>巴西（BR）</strong>：南美最大市場</div>
+                            <div class="flex items-center"><span class="mr-2">🇮🇩</span><strong>印尼（ID）</strong>：東南亞最大市場</div>
+                            <div class="flex items-center"><span class="mr-2">🇲🇽</span><strong>墨西哥（MX）</strong>：西語市場代表</div>
+                        </div>
+
+                        <h4 class="text-lg font-bold mt-6 mb-2 text-yellow-400">📈 自動分類</h4>
+                        <div class="space-y-1 text-sm">
+                            <div><strong>一般影片</strong>：長度 > 60 秒</div>
+                            <div><strong>Shorts 短影片</strong>：長度 ≤ 60 秒</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Troubleshooting -->
+            <section class="mb-16">
+                <h2 class="text-3xl font-bold mb-8 flex items-center">
+                    <span class="material-symbols-outlined text-[var(--primary-color)] mr-3">help</span>
+                    🔧 疑難排解
+                </h2>
+
+                <div class="space-y-6">
+                    <div class="bg-red-900/20 border border-red-500/30 rounded-lg p-6">
+                        <h3 class="text-xl font-bold mb-4 text-red-400">資料收集問題</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <strong class="text-red-300">❌ 「YouTube is not defined」</strong>
+                                <p class="text-gray-300 ml-4">→ 確保已啟用 YouTube Data API v3 服務</p>
+                            </div>
+                            <div>
+                                <strong class="text-red-300">❌ 「配額已用盡」</strong>
+                                <p class="text-gray-300 ml-4">→ YouTube API 每日免費額度用完，隔天再試</p>
+                            </div>
+                            <div>
+                                <strong class="text-red-300">❌ 「權限不足」</strong>
+                                <p class="text-gray-300 ml-4">→ 重新執行 setupSystem() 完成授權</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-6">
+                        <h3 class="text-xl font-bold mb-4 text-yellow-400">Web 工具問題</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <strong class="text-yellow-300">❌ 網頁顯示「載入資料中...」</strong>
+                                <p class="text-gray-300 ml-4">→ 檢查 Google Apps Script API 是否部署為網路應用程式</p>
+                            </div>
+                            <div>
+                                <strong class="text-yellow-300">❌ 圖表無法顯示</strong>
+                                <p class="text-gray-300 ml-4">→ 確保瀏覽器支援 JavaScript</p>
+                            </div>
+                            <div>
+                                <strong class="text-yellow-300">❌ 文字雲空白</strong>
+                                <p class="text-gray-300 ml-4">→ 確認有足夠的標題資料，調低「最小字數」設定</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Success -->
+            <section class="mb-16">
+                <div class="bg-gradient-to-r from-green-600/20 to-blue-600/20 border border-green-500/30 rounded-lg p-8 text-center">
+                    <h2 class="text-3xl font-bold mb-6 text-green-400">🎉 恭喜！你的完整分析系統上線了</h2>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gray-800/50 rounded-lg p-6">
+                            <h3 class="text-xl font-bold mb-4 text-blue-400">📊 資料收集系統</h3>
+                            <ul class="space-y-2 text-left">
+                                <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2">check</span>全自動排名追蹤</li>
+                                <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2">check</span>智能檔案結構</li>
+                                <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2">check</span>每日數據快照</li>
+                                <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2">check</span>Web API 介面</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-gray-800/50 rounded-lg p-6">
+                            <h3 class="text-xl font-bold mb-4 text-purple-400">🌐 Web 分析工具</h3>
+                            <ul class="space-y-2 text-left">
+                                <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2">check</span>影片搜尋分析</li>
+                                <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2">check</span>Hashtag 統計分析</li>
+                                <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2">check</span>標題文字雲分析</li>
+                                <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2">check</span>響應式設計</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="text-2xl font-bold text-white mb-4">🚀 開始你的 YouTube 趨勢分析之旅吧！</div>
+
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <a href="video-search.html" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-medium transition-colors">📺 開始影片分析</a>
+                        <a href="hashtag-analytics.html" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-medium transition-colors">📊 Hashtag 分析</a>
+                        <a href="title-wordcloud.html" class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-medium transition-colors">☁️ 文字雲分析</a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 py-8 border-t border-gray-700">
+        <div class="container mx-auto px-6 text-center">
+            <div class="mb-4">
+                <h3 class="text-xl font-bold mb-2">YouTube 趨勢追蹤分析平台</h3>
+                <p class="text-gray-400">v3.1.0 增強版 - 新手教學</p>
+            </div>
+            <div class="text-sm text-gray-500">
+                <p>有問題隨時參考 <a href="develop.html" class="text-blue-400 hover:text-blue-300">開發文檔</a> 或查看 <a href="changelog.html" class="text-blue-400 hover:text-blue-300">更新記錄</a>！</p>
+                <p class="mt-2">最後更新：2025-09-19 | 技術支援：AI Assistant (Claude)</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

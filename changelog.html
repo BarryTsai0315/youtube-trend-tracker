@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link as="style" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans+TC:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;700;800" onload="this.rel='stylesheet'" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <title>更新紀錄 - YouTube 趨勢追蹤分析平台</title>
+    <link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+        :root {
+            --primary-color: #ea2a33;
+            --secondary-color: #3b82f6;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+        }
+        .version-card {
+            transition: all 0.3s ease;
+        }
+        .version-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+        .feature-tag {
+            transition: all 0.2s ease;
+        }
+        .feature-tag:hover {
+            transform: scale(1.05);
+        }
+        .timeline-line {
+            background: linear-gradient(to bottom, #3b82f6, #6366f1, #8b5cf6);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 border-b border-gray-700">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center gap-3 text-white hover:text-gray-300 transition-colors">
+                    <svg class="h-8 w-8 text-[var(--primary-color)]" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 15.65v-7.3L16.03 12M22 12c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2s10 4.48 10 10zM4 12c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8-8 3.58-8 8z"></path>
+                    </svg>
+                    <span class="text-xl font-bold">YouTube 趨勢追蹤分析平台</span>
+                </a>
+                <div class="flex items-center gap-4">
+                    <a href="index.html" class="px-4 py-2 rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white transition-colors">首頁</a>
+                    <a href="beginner.html" class="px-4 py-2 rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white transition-colors">新手教學</a>
+                    <a href="develop.html" class="px-4 py-2 rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white transition-colors">開發文檔</a>
+                    <a href="changelog.html" class="px-4 py-2 rounded-lg bg-[var(--primary-color)] text-white">更新紀錄</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="hero-gradient py-16">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                📅 更新紀錄
+            </h1>
+            <p class="text-xl text-gray-300 mb-6">完整版本歷史與功能演進軌跡</p>
+            <div class="inline-flex items-center px-6 py-3 bg-green-600 rounded-full text-white font-medium">
+                <span class="material-symbols-outlined mr-2">history</span>
+                從 v1.0 到 v3.1 的完整開發歷程
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="py-16">
+        <div class="container mx-auto px-6 max-w-5xl">
+
+            <!-- Version Timeline -->
+            <div class="relative">
+                <!-- Timeline Line -->
+                <div class="absolute left-8 top-0 bottom-0 w-1 timeline-line"></div>
+
+                <!-- v3.1.0 - Latest -->
+                <div class="relative mb-16">
+                    <div class="absolute left-4 w-8 h-8 bg-green-500 rounded-full border-4 border-gray-900 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-sm">new_releases</span>
+                    </div>
+                    <div class="ml-20">
+                        <div class="version-card bg-gradient-to-r from-green-600/20 to-blue-600/20 border border-green-500/30 rounded-lg p-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-3xl font-bold text-green-400">v3.1.0 增強版</h2>
+                                <div class="flex items-center gap-3">
+                                    <span class="px-3 py-1 bg-green-600 rounded-full text-sm font-medium">最新版本</span>
+                                    <span class="text-gray-400">2025-09-19</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <h3 class="text-xl font-bold mb-4 text-blue-300">🆕 核心新功能</h3>
+                                <div class="grid md:grid-cols-3 gap-4 mb-6">
+                                    <div class="feature-tag bg-gray-800/50 rounded-lg p-4 border border-blue-500/30">
+                                        <h4 class="font-bold text-blue-400 mb-2">📅 日期範圍篩選</h4>
+                                        <p class="text-sm text-gray-300">精確控制資料收集時間範圍，支援開始和結束日期設定</p>
+                                    </div>
+                                    <div class="feature-tag bg-gray-800/50 rounded-lg p-4 border border-purple-500/30">
+                                        <h4 class="font-bold text-purple-400 mb-2">📊 觀看數範圍篩選</h4>
+                                        <p class="text-sm text-gray-300">雙向觀看數篩選，設定最小和最大值範圍</p>
+                                    </div>
+                                    <div class="feature-tag bg-gray-800/50 rounded-lg p-4 border border-green-500/30">
+                                        <h4 class="font-bold text-green-400 mb-2">📄 智能分頁系統</h4>
+                                        <p class="text-sm text-gray-300">防抖動搜尋、流暢分頁導航和載入狀態管理</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <h3 class="text-xl font-bold mb-4 text-purple-300">🔧 技術改進</h3>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <ul class="space-y-2">
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>新增篩選 API 端點：<code class="bg-gray-700 px-2 py-1 rounded text-xs">action=filter</code></li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>防抖動搜尋：300ms 延遲優化用戶體驗</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>分頁參數：支援 page & size 控制</li>
+                                    </ul>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>關鍵字搜尋：標題 + hashtags 全文搜尋</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>載入狀態：流暢的 UI 反饋機制</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>錯誤處理：完善的異常處理邏輯</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-800/30 rounded-lg p-4">
+                                <h4 class="font-bold text-yellow-400 mb-2">🎯 影響範圍</h4>
+                                <p class="text-sm text-gray-300">主要影響 <strong>影片搜尋分析</strong> 頁面，新增強大的篩選和分頁功能，大幅提升大數據量的瀏覽體驗。後端 API 完全向後兼容，不影響現有功能。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- v3.0.0 -->
+                <div class="relative mb-16">
+                    <div class="absolute left-4 w-8 h-8 bg-blue-500 rounded-full border-4 border-gray-900 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-sm">rocket_launch</span>
+                    </div>
+                    <div class="ml-20">
+                        <div class="version-card bg-gray-800 rounded-lg p-8 border border-gray-700">
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-3xl font-bold text-blue-400">v3.0.0 Web 分析工具平台</h2>
+                                <span class="text-gray-400">2025-09-18</span>
+                            </div>
+
+                            <div class="mb-6">
+                                <h3 class="text-xl font-bold mb-4 text-green-300">🌟 重大更新：三大分析工具</h3>
+                                <div class="grid md:grid-cols-3 gap-4 mb-6">
+                                    <div class="feature-tag bg-gray-700/50 rounded-lg p-4">
+                                        <h4 class="font-bold text-blue-400 mb-2">📺 影片搜尋分析</h4>
+                                        <ul class="text-sm text-gray-300 space-y-1">
+                                            <li>• 5 列響應式網格佈局</li>
+                                            <li>• 多維度即時篩選系統</li>
+                                            <li>• YouTube 縮圖整合</li>
+                                            <li>• 流暢動畫效果</li>
+                                        </ul>
+                                    </div>
+                                    <div class="feature-tag bg-gray-700/50 rounded-lg p-4">
+                                        <h4 class="font-bold text-green-400 mb-2">📊 Hashtag 統計分析</h4>
+                                        <ul class="text-sm text-gray-300 space-y-1">
+                                            <li>• Chart.js 視覺化圖表</li>
+                                            <li>• 雙重排行榜系統</li>
+                                            <li>• 豐富篩選選項</li>
+                                            <li>• 詳細統計數據表格</li>
+                                        </ul>
+                                    </div>
+                                    <div class="feature-tag bg-gray-700/50 rounded-lg p-4">
+                                        <h4 class="font-bold text-purple-400 mb-2">☁️ 標題文字雲分析</h4>
+                                        <ul class="text-sm text-gray-300 space-y-1">
+                                            <li>• 智能中英文分詞</li>
+                                            <li>• 動態文字雲渲染</li>
+                                            <li>• 雙排行榜系統</li>
+                                            <li>• 互動式關鍵詞分析</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <h3 class="text-xl font-bold mb-4 text-orange-300">🎨 用戶體驗革新</h3>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <ul class="space-y-2">
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>統一導航系統：三頁面無縫切換</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>完全響應式設計：適配所有裝置</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>一致的暗色主題設計</li>
+                                    </ul>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>原生性能：零框架依賴</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>專業視覺化：Chart.js 圖表引擎</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>智能分析：自製文字雲引擎</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-700/30 rounded-lg p-4">
+                                <h4 class="font-bold text-yellow-400 mb-2">📁 新增檔案</h4>
+                                <div class="grid md:grid-cols-3 gap-2 text-sm text-gray-300">
+                                    <div><code>src/youtube-search.html</code></div>
+                                    <div><code>src/hashtag-analytics.html</code></div>
+                                    <div><code>src/title-wordcloud.html</code></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- v2.0.0 -->
+                <div class="relative mb-16">
+                    <div class="absolute left-4 w-8 h-8 bg-purple-500 rounded-full border-4 border-gray-900 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-sm">architecture</span>
+                    </div>
+                    <div class="ml-20">
+                        <div class="version-card bg-gray-800 rounded-lg p-8 border border-gray-700">
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-3xl font-bold text-purple-400">v2.0.0 階層檔案結構</h2>
+                                <span class="text-gray-400">2025-09-17</span>
+                            </div>
+
+                            <div class="mb-6">
+                                <h3 class="text-xl font-bold mb-4 text-green-300">🏗️ 革命性檔案組織</h3>
+                                <div class="bg-gray-700/50 rounded-lg p-4 mb-4">
+                                    <h4 class="font-bold text-blue-400 mb-2">📁 階層檔案結構</h4>
+                                    <pre class="text-sm text-gray-300"><code>YouTube Analytics Data/
+├── 2024/
+│   ├── 2024-09 (每日分頁: 01, 02, ..., 30)
+│   ├── 2024-10 (每日分頁: 01, 02, ..., 31)
+│   └── ...
+├── 2025/
+│   ├── 2025-01
+│   └── ...</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <h3 class="text-xl font-bold mb-4 text-orange-300">🚀 智能邊界處理</h3>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <ul class="space-y-2">
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>智能按需建立：只建立今日+明日分頁</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>跨月自動處理：09/30 → 10/01</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>跨年自動處理：12/31 → 01/01</li>
+                                    </ul>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>重複執行友好：跳過已存在結構</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>永續運行：永不觸及 Google Sheets 限制</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>地區擴展：新增巴西、印尼、墨西哥</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-700/30 rounded-lg p-4">
+                                <h4 class="font-bold text-yellow-400 mb-2">📊 數據結構簡化</h4>
+                                <p class="text-sm text-gray-300">新的每日分頁結構（14 欄），移除歷史累積複雜度，改為每日快照模式，數據更清晰易用。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- v1.0.0 -->
+                <div class="relative mb-16">
+                    <div class="absolute left-4 w-8 h-8 bg-yellow-500 rounded-full border-4 border-gray-900 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-sm">star</span>
+                    </div>
+                    <div class="ml-20">
+                        <div class="version-card bg-gray-800 rounded-lg p-8 border border-gray-700">
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="text-3xl font-bold text-yellow-400">v1.0.0 首次發布</h2>
+                                <span class="text-gray-400">2025-09-17</span>
+                            </div>
+
+                            <div class="mb-6">
+                                <h3 class="text-xl font-bold mb-4 text-green-300">🎉 核心功能建立</h3>
+                                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                                    <div class="feature-tag bg-gray-700/50 rounded-lg p-4">
+                                        <h4 class="font-bold text-blue-400 mb-2">🔧 Google Apps Script 後端</h4>
+                                        <ul class="text-sm text-gray-300 space-y-1">
+                                            <li>• 讀取 Google Sheets 資料</li>
+                                            <li>• 提供 JSON API 介面</li>
+                                            <li>• 自動解析 hashtags</li>
+                                            <li>• 生成 YouTube 縮圖 URL</li>
+                                        </ul>
+                                    </div>
+                                    <div class="feature-tag bg-gray-700/50 rounded-lg p-4">
+                                        <h4 class="font-bold text-green-400 mb-2">🌐 HTML 搜尋介面</h4>
+                                        <ul class="text-sm text-gray-300 space-y-1">
+                                            <li>• 響應式暗色主題設計</li>
+                                            <li>• 多維度篩選功能</li>
+                                            <li>• YouTube 縮圖整合</li>
+                                            <li>• 即時篩選動畫效果</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <h3 class="text-xl font-bold mb-4 text-purple-300">✨ 使用者體驗</h3>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <ul class="space-y-2">
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>篩選動畫：切換條件時視覺反饋</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>地區顯示：影片卡片獨立顯示地區</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>響應式設計：支援多種裝置</li>
+                                    </ul>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>效能優化：前端快速篩選</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>智能搜尋：標題和標籤全文搜尋</li>
+                                        <li class="flex items-center"><span class="material-symbols-outlined text-green-400 mr-2 text-sm">check</span>數值格式化：觀看數 K/M 單位</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-700/30 rounded-lg p-4">
+                                <h4 class="font-bold text-yellow-400 mb-2">🛠️ 技術棧</h4>
+                                <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-300">
+                                    <div><strong>後端：</strong>Google Apps Script (JavaScript)</div>
+                                    <div><strong>前端：</strong>HTML5 + Vanilla JavaScript + Tailwind CSS</div>
+                                    <div><strong>設計：</strong>Material Design + Google Material Symbols</div>
+                                    <div><strong>字體：</strong>Plus Jakarta Sans + Noto Sans TC</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Future Roadmap -->
+            <section class="mt-16">
+                <h2 class="text-3xl font-bold mb-8 text-center flex items-center justify-center text-purple-400">
+                    <span class="material-symbols-outlined mr-3">map</span>
+                    🔮 未來開發規劃
+                </h2>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="bg-gradient-to-b from-blue-600/20 to-blue-800/20 border border-blue-500/30 rounded-lg p-6">
+                        <h3 class="text-xl font-bold mb-4 text-blue-400">v3.2 計畫功能</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center"><span class="material-symbols-outlined text-gray-400 mr-2 text-sm">schedule</span>影片趨勢圖表分析</li>
+                            <li class="flex items-center"><span class="material-symbols-outlined text-gray-400 mr-2 text-sm">schedule</span>多時間範圍對比功能</li>
+                            <li class="flex items-center"><span class="material-symbols-outlined text-gray-400 mr-2 text-sm">schedule</span>資料匯出功能（CSV, JSON）</li>
+                            <li class="flex items-center"><span class="material-symbols-outlined text-gray-400 mr-2 text-sm">schedule</span>自訂篩選器儲存</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gradient-to-b from-purple-600/20 to-purple-800/20 border border-purple-500/30 rounded-lg p-6">
+                        <h3 class="text-xl font-bold mb-4 text-purple-400">v3.3 增強功能</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center"><span class="material-symbols-outlined text-gray-400 mr-2 text-sm">schedule</span>即時資料更新（WebSocket）</li>
+                            <li class="flex items-center"><span class="material-symbols-outlined text-gray-400 mr-2 text-sm">schedule</span>進階統計分析</li>
+                            <li class="flex items-center"><span class="material-symbols-outlined text-gray-400 mr-2 text-sm">schedule</span>使用者偏好設定</li>
+                            <li class="flex items-center"><span class="material-symbols-outlined text-gray-400 mr-2 text-sm">schedule</span>深色/淺色主題切換</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gradient-to-b from-green-600/20 to-green-800/20 border border-green-500/30 rounded-lg p-6">
+                        <h3 class="text-xl font-bold mb-4 text-green-400">v4.0 長期目標</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center"><span class="material-symbols-outlined text-gray-400 mr-2 text-sm">schedule</span>React 版本重構</li>
+                            <li class="flex items-center"><span class="material-symbols-outlined text-gray-400 mr-2 text-sm">schedule</span>後端資料庫整合</li>
+                            <li class="flex items-center"><span class="material-symbols-outlined text-gray-400 mr-2 text-sm">schedule</span>多用戶支援系統</li>
+                            <li class="flex items-center"><span class="material-symbols-outlined text-gray-400 mr-2 text-sm">schedule</span>行動裝置 PWA 支援</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Development Philosophy -->
+            <section class="mt-16 bg-gray-800 rounded-lg p-8">
+                <h2 class="text-3xl font-bold mb-6 text-center text-orange-400">
+                    📝 Linus Torvalds 程式設計哲學應用
+                </h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 text-blue-400">核心原則</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="material-symbols-outlined text-green-400 mr-3 mt-1 text-sm">philosophy</span>
+                                <div>
+                                    <strong>"好品味"原則：</strong>
+                                    <p class="text-sm text-gray-300">消除特殊情況，簡化邏輯</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="material-symbols-outlined text-green-400 mr-3 mt-1 text-sm">build</span>
+                                <div>
+                                    <strong>實用主義：</strong>
+                                    <p class="text-sm text-gray-300">解決實際問題，不過度設計</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="material-symbols-outlined text-green-400 mr-3 mt-1 text-sm">minimize</span>
+                                <div>
+                                    <strong>簡潔執念：</strong>
+                                    <p class="text-sm text-gray-300">函數短小精悍，避免深層嵌套</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="material-symbols-outlined text-green-400 mr-3 mt-1 text-sm">verified</span>
+                                <div>
+                                    <strong>向後兼容：</strong>
+                                    <p class="text-sm text-gray-300">確保現有功能不被破壞</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 text-purple-400">關鍵技術決策</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="material-symbols-outlined text-blue-400 mr-3 mt-1 text-sm">speed</span>
+                                <div>
+                                    <strong>前端篩選：</strong>
+                                    <p class="text-sm text-gray-300">提升響應速度，減少伺服器負載</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="material-symbols-outlined text-blue-400 mr-3 mt-1 text-sm">code</span>
+                                <div>
+                                    <strong>Vanilla JavaScript：</strong>
+                                    <p class="text-sm text-gray-300">避免框架依賴，提升載入速度</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="material-symbols-outlined text-blue-400 mr-3 mt-1 text-sm">cloud</span>
+                                <div>
+                                    <strong>Google Apps Script：</strong>
+                                    <p class="text-sm text-gray-300">簡化部署流程，降低維護成本</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="material-symbols-outlined text-blue-400 mr-3 mt-1 text-sm">integration_instructions</span>
+                                <div>
+                                    <strong>YouTube 官方 API：</strong>
+                                    <p class="text-sm text-gray-300">確保資料準確性和可靠性</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 py-8 border-t border-gray-700">
+        <div class="container mx-auto px-6 text-center">
+            <div class="mb-4">
+                <h3 class="text-xl font-bold mb-2">YouTube 趨勢追蹤分析平台</h3>
+                <p class="text-gray-400">v3.1.0 增強版 - 完整更新紀錄</p>
+            </div>
+            <div class="text-sm text-gray-500">
+                <p>版本歷史 | <a href="beginner.html" class="text-blue-400 hover:text-blue-300">新手教學</a> | <a href="develop.html" class="text-blue-400 hover:text-blue-300">開發文檔</a></p>
+                <p class="mt-2">最後更新：2025-09-19 | 技術支援：AI Assistant (Claude)</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
