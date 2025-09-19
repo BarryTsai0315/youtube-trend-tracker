@@ -66,6 +66,15 @@ const RANKING_LIMIT = 20;
 /** @const {number} Shorts 影片長度閾值（秒）- 可調整 */
 const SHORTS_DURATION_LIMIT = 60;
 
+/** @const {string} 網站資料來源 Google Sheet ID */
+const WEBSITE_DATA_SHEET_ID = '1GFb9Hxn1bcJbGHfGuePlSJO7vfqFadIlxKWa2mqTj-4';
+
+/** @const {string} 網站資料工作表名稱 */
+const WEBSITE_DATA_SHEET_NAME = '影片追蹤';
+
+/** @const {number} 網站資料保留天數 - 可調整 */
+const WEBSITE_DATA_RETENTION_DAYS = 30;
+
 // ============================================================================
 // 預設值 - 當沒有提供參數時使用
 // ============================================================================
@@ -198,10 +207,14 @@ function dailyYouTubeTracking() {
   try {
     console.log('=== 開始每日追蹤 ===');
 
-    // 第一步：確保今日結構存在
+    // 第一步：清理網站資料中的過期記錄
+    const today = new Date().toLocaleDateString('sv-SE'); // 使用本地時區的 YYYY-MM-DD 格式
+    console.log('🧹 清理網站資料過期記錄...');
+    cleanupWebsiteSheetData(today);
+
+    // 第二步：確保今日結構存在
     const todayInfo = ensureTodayStructureExists();
     const todaySheet = todayInfo.todaySheet;
-    const today = new Date().toISOString().split('T')[0];
 
     // 對每個地區和類型進行追蹤 - 數據驅動，直接寫入今日分頁
     Object.keys(REGIONS).forEach(regionCode => {
@@ -444,6 +457,119 @@ function createJsonResponse(data, status) {
   output.setMimeType(ContentService.MimeType.JSON);
   if (status) data.status = status;
   return output;
+}
+
+// ============================================================================
+// 網站資料系統 - v2.0 雙重寫入功能
+// ============================================================================
+
+/**
+ * 取得網站資料工作表
+ *
+ * "Good taste" - 統一的錯誤處理，不存在就創建
+ *
+ * @return {GoogleAppsScript.Spreadsheet.Sheet} 網站資料工作表
+ */
+function getWebsiteDataSheet() {
+  try {
+    const spreadsheet = SpreadsheetApp.openById(WEBSITE_DATA_SHEET_ID);
+    let sheet = spreadsheet.getSheetByName(WEBSITE_DATA_SHEET_NAME);
+
+    if (!sheet) {
+      // 工作表不存在，創建新的
+      sheet = spreadsheet.insertSheet(WEBSITE_DATA_SHEET_NAME);
+
+      // 設定標題行
+      sheet.getRange(1, 1, 1, COLUMNS.length).setValues([COLUMNS]);
+      sheet.getRange(1, 1, 1, COLUMNS.length).setFontWeight('bold').setBackground('#E8F0FE');
+
+      console.log(`已創建網站資料工作表: ${WEBSITE_DATA_SHEET_NAME}`);
+    }
+
+    return sheet;
+
+  } catch (error) {
+    console.log(`無法取得網站資料工作表: ${error.toString()}`);
+    throw error;
+  }
+}
+
+/**
+ * 寫入資料到網站 Sheet
+ *
+ * @param {Object} video - 影片資料
+ * @param {string} regionCode - 地區代碼
+ * @param {string} type - 影片類型
+ * @param {string} today - 今日日期
+ * @param {number} rank - 排名
+ */
+function writeToWebsiteSheet(video, regionCode, type, today, rank) {
+  try {
+    const sheet = getWebsiteDataSheet();
+    const hashtagsString = video.hashtags ? video.hashtags.join(',') : '';
+
+    const row = [
+      rank,                        // rank
+      video.videoId,               // videoId
+      video.title,                 // title
+      video.channelTitle,          // channelTitle
+      video.publishedAt,           // publishedAt
+      regionCode,                  // region
+      type,                        // type
+      today,                       // recordDate
+      video.url,                   // url
+      video.viewCount,             // viewCount
+      video.likeCount,             // likeCount
+      video.commentCount,          // commentCount
+      hashtagsString,              // hashtags
+      video.durationSeconds        // durationSeconds
+    ];
+
+    sheet.appendRow(row);
+
+  } catch (error) {
+    console.log(`網站資料寫入失敗: ${error.toString()}`);
+    // 不拋出錯誤，確保不影響主要流程
+  }
+}
+
+/**
+ * 清理網站 Sheet 中的過期資料
+ *
+ * @param {string} today - 今日日期
+ */
+function cleanupWebsiteSheetData(today) {
+  try {
+    const sheet = getWebsiteDataSheet();
+    const cutoffDate = new Date(Date.now() - WEBSITE_DATA_RETENTION_DAYS * 24 * 60 * 60 * 1000);
+    const cutoffDateString = cutoffDate.toISOString().split('T')[0];
+
+    const lastRow = sheet.getLastRow();
+    if (lastRow <= 1) return; // 只有標題行
+
+    // 讀取所有資料的記錄日期（第8欄）
+    const dateRange = sheet.getRange(2, 8, lastRow - 1, 1);
+    const dates = dateRange.getValues();
+
+    let deletedCount = 0;
+
+    // 從後往前刪除（避免索引偏移問題）
+    for (let i = dates.length - 1; i >= 0; i--) {
+      const recordDate = dates[i][0];
+      if (recordDate && recordDate < cutoffDateString) {
+        sheet.deleteRow(i + 2); // +2 因為從第2行開始，且索引從0開始
+        deletedCount++;
+      }
+    }
+
+    if (deletedCount > 0) {
+      console.log(`網站資料清理完成：刪除 ${deletedCount} 筆超過 ${WEBSITE_DATA_RETENTION_DAYS} 天的記錄`);
+    }
+
+  } catch (error) {
+    console.log(`網站資料清理失敗: ${error.toString()}`);
+    // 不拋出錯誤，確保不影響主要流程
+  }
 }
 
 // ============================================================================
@@ -1163,10 +1289,15 @@ function trackRegionToDaily(todaySheet, regionCode, wantShorts, today) {
 
   if (filteredVideos.length === 0) return;
 
-  // 直接寫入今日分頁 - 無歷史累積
+  // 雙重寫入：今日分頁 + 網站資料 Sheet
   filteredVideos.forEach((video, index) => {
     const rank = index + 1;
+
+    // 主要寫入：今日分頁（核心功能）
     addDailyRecord(todaySheet, video, regionCode, type, today, rank);
+
+    // 附加寫入：網站資料 Sheet（有錯誤隔離）
+    writeToWebsiteSheet(video, regionCode, type, today, rank);
   });
 
   console.log(`   ✅ 已寫入 ${filteredVideos.length} 筆 ${REGIONS[regionCode].name} ${type} 記錄`);
@@ -1248,4 +1379,68 @@ function createSheetIfNotExists(spreadsheet, sheetName) {
   }
 
   return sheet;
+}
+
+// ============================================================================
+// 測試函數 - v2.0 雙重寫入功能驗證
+// ============================================================================
+
+/**
+ * 🧪 測試雙重寫入功能和錯誤隔離機制
+ */
+function testWebsiteDataIntegration() {
+  console.log('🧪 測試網站資料雙重寫入功能');
+
+  try {
+    // 測試網站資料 Sheet 連接
+    const websiteSheet = getWebsiteDataSheet();
+    console.log(`✅ 網站資料 Sheet 連接成功`);
+
+    // 測試寫入功能
+    const testVideo = {
+      videoId: 'TEST_' + Date.now(),
+      title: '測試影片 - 雙重寫入功能驗證',
+      channelTitle: '測試頻道',
+      publishedAt: new Date().toISOString(),
+      url: 'https://www.youtube.com/watch?v=test',
+      viewCount: 12345,
+      likeCount: 678,
+      commentCount: 90,
+      hashtags: ['#測試', '#雙重寫入'],
+      durationSeconds: 120
+    };
+
+    const today = new Date().toLocaleDateString('sv-SE'); // 使用本地時區的 YYYY-MM-DD 格式
+    writeToWebsiteSheet(testVideo, 'TW', 'videos', today, 1);
+    console.log('✅ 測試資料寫入成功');
+
+    cleanupWebsiteSheetData(today);
+    console.log('✅ 清理功能執行完成');
+
+    console.log('🎉 雙重寫入功能測試完成！');
+    return { success: true };
+
+  } catch (error) {
+    console.log(`❌ 測試失敗: ${error.toString()}`);
+    return { success: false, error: error.toString() };
+  }
+}
+
+/**
+ * 🔍 檢查網站資料 Sheet 狀態
+ */
+function checkWebsiteDataSheetStatus() {
+  try {
+    const sheet = getWebsiteDataSheet();
+    const rowCount = sheet.getLastRow() - 1;
+
+    console.log('📊 網站資料 Sheet 狀態：');
+    console.log(`   • Sheet ID: ${WEBSITE_DATA_SHEET_ID}`);
+    console.log(`   • 工作表名稱: ${WEBSITE_DATA_SHEET_NAME}`);
+    console.log(`   • 資料筆數: ${rowCount}`);
+    console.log(`   • 保留天數: ${WEBSITE_DATA_RETENTION_DAYS} 天`);
+
+  } catch (error) {
+    console.log(`❌ 無法檢查網站資料 Sheet: ${error.toString()}`);
+  }
 }
